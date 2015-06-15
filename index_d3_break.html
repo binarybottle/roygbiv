@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.box {
+  font: 10px sans-serif;
+}
+
+.box line,
+.box rect,
+.box circle {
+  fill: steelblue;
+  stroke: #000;
+  stroke-width: 1px;
+}
+
+.box .center {
+  stroke-dasharray: 3,3;
+}
+
+.box .outlier {
+  fill: none;
+  stroke: #000;
+}
+
+.axis {
+  font: 12px sans-serif;
+}
+ 
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+ 
+.x.axis path { 
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<!--script src="../../d3/d3.min.js"></script-->
+<script src="scripts/box.js"></script>
+<script>
+var labels = true; // show the text labels beside individual boxplots?
+
+var margin = {top: 30, right: 50, bottom: 70, left: 50};
+var  width = 800 - margin.left - margin.right;
+var height = 400 - margin.top - margin.bottom;
+  
+var min = Infinity,
+    max = -Infinity;
+  
+// parse in the data  
+d3.csv("data/mindboggled/Twins-2-1/tables/left_exploded_tables/1031.0.csv", function(error, csv) {
+
+//d3.csv("data/data.csv", function(error, csv) {
+  // using an array of arrays with
+  // data[n][2] 
+  // where n = number of columns in the csv file 
+  // data[i][0] = name of the ith column
+  // data[i][1] = array of values of ith column
+
+  var data = [];
+  data[0] = [];
+  data[1] = [];
+  data[2] = [];
+  data[3] = [];
+  data[4] = [];
+
+  var data1 = [];
+  data1[0] = [];
+  data1[1] = [];
+  data1[0][0] = "travel depth";
+  data1[1][0] = "geodesic depth";
+  data1[0][1] = [];
+  data1[1][1] = [];
+
+  var data2 = [];
+  data2[0] = [];
+  data2[1] = [];
+  data2[0][0] = "mean curvature";
+  data2[1][0] = "FS curvature";
+  data2[0][1] = [];
+  data2[1][1] = [];
+
+  var data3 = [];
+  data3[0] = [];
+  data3[0][0] = "FS thickness";
+  data3[0][1] = [];
+
+  // add more rows if your csv file has more columns
+
+  // add here the header of the csv file
+  data[0][0] = "travel depth";
+  data[1][0] = "geodesic depth";
+  data[2][0] = "mean curvature";
+  data[3][0] = "FS curvature";
+  data[4][0] = "FS thickness";
+  // add more rows if your csv file has more columns
+
+  data[0][1] = [];
+  data[1][1] = [];
+  data[2][1] = [];
+  data[3][1] = [];
+  data[4][1] = [];
+
+  data1[0][1] = [];
+  data1[1][1] = [];
+  data2[0][1] = [];
+  data2[1][1] = [];
+  data3[0][1] = [];
+
+  csv.forEach(function(x) {
+    var v1 = Math.floor(x.travel_depth),
+      v2 = Math.floor(x.geodesic_depth),
+      v3 = Math.floor(x.mean_curvature),
+      v4 = Math.floor(x.freesurfer_curvature),
+      v5 = Math.floor(x.freesurfer_thickness);
+      // add more variables if your csv file has more columns
+      
+    //var rowMax = Math.max(v1, Math.max(v2, Math.max(v3, Math.max(v4, Math.max(v5,v6)))));
+    //var rowMin = Math.min(v1, Math.min(v2, Math.min(v3, Math.min(v4, Math.min(v5,v6)))));
+    var rowMax = Math.max(v1, Math.max(v2, Math.max(v3, Math.max(v4, v5))));
+    var rowMin = Math.min(v1, Math.min(v2, Math.min(v3, Math.min(v4, v5))));
+
+    data[0][1].push(v1);
+    data[1][1].push(v2);
+    data[2][1].push(v3);
+    data[3][1].push(v4);
+    data[4][1].push(v5);
+     // add more rows if your csv file has more columns
+     
+    if (rowMax > max) max = rowMax;
+    if (rowMin < min) min = rowMin; 
+    
+    //var data1 = data.slice(5,1);
+
+    data1[0][1].push(v1);
+    data1[1][1].push(v2);
+    data2[0][1].push(v3);
+    data2[1][1].push(v4);
+    data3[0][1].push(v5);
+
+    var rowMax1 = Math.max(v1, v2);
+    var rowMin1 = Math.min(v1, v2);
+    var rowMax2 = Math.max(v3, v4);
+    var rowMin2 = Math.min(v3, v4);
+    var rowMax3 = Math.max(v5);
+    var rowMin3 = Math.min(v5);
+
+    if (rowMax1 > max) max1 = rowMax1;
+    if (rowMin1 < min) min1 = rowMin1; 
+    if (rowMax2 > max) max2 = rowMax2;
+    if (rowMin2 < min) min2 = rowMin2; 
+    if (rowMax3 > max) max3 = rowMax3;
+    if (rowMin3 < min) min3 = rowMin3; 
+
+
+  });
+  
+  var chart = d3.box()
+    .whiskers(iqr(1.5))
+    .height(height) 
+    .domain([min, max])
+    .showLabels(labels);
+
+  var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .attr("class", "box")    
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  
+  // the x-axis
+  var x = d3.scale.ordinal()     
+    .domain( data.map(function(d) { console.log(d); return d[0] } ) )     
+    .rangeRoundBands([0 , width], 0.7, 0.3);    
+
+  var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+  // draw the boxplots  
+  svg.selectAll(".box")    
+      .data(data)
+    .enter().append("g")
+    .attr("transform", function(d) { return "translate(" +  x(d[0])  + "," + margin.top + ")"; } )
+      .call(chart.width(x.rangeBand())); 
+  
+        
+  // add a title
+  svg.append("text")
+        .attr("x", (width / 2))             
+        .attr("y", 0 + (margin.top / 2))
+        .attr("text-anchor", "middle")  
+        .style("font-size", "18px") 
+        //.style("text-decoration", "underline")  
+        .text("Shape distributions");
+
+  // draw x axis  
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + (height  + margin.top + 10) + ")")
+      .call(xAxis)
+    .append("text")             // text label for the x axis
+        .attr("x", (width / 2) )
+        .attr("y",  10 )
+    .attr("dy", ".71em")
+        .style("text-anchor", "middle")
+    .style("font-size", "16px") 
+});
+
+// Returns a function to compute the interquartile range.
+function iqr(k) {
+  return function(d, i) {
+    var q1 = d.quartiles[0],
+        q3 = d.quartiles[2],
+        iqr = (q3 - q1) * k,
+        i = -1,
+        j = d.length;
+    while (d[++i] < q1 - iqr);
+    while (d[--j] > q3 + iqr);
+    return [i, j];
+  };
+}
+
+</script>
