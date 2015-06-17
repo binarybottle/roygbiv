@@ -32,7 +32,7 @@
     <script src="three.js/examples/js/controls/TrackballControls.js"></script>
 
     <script src="three.js/examples/js/loaders/VTKLoader.js"></script>
-    
+    <script src="three.js/examples/js/renderers/Projector.js"></script>
     <script src="three.js/examples/js/Detector.js"></script>
     <script src="three.js/examples/js/libs/stats.min.js"></script>
     <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
@@ -87,42 +87,14 @@ var init = function() {
 
         var loader = new THREE.VTKLoader();
 
-        /*loader.load( "data/mindboggled/Twins-2-1/labels/left_cortical_surface/freesurfer_cortex_labels.vtk", function ( geometry ) {
-				
-		  
-          geometry.computeVertexNormals();
-          
-          
-        console.log("faces",geometry.faces)
-
-          var mesh = new THREE.Mesh( geometry, material );
-          mesh.geometry.computeFaceNormals()
-/*
-          for ( var i = 0; i < mesh.geometry.faces.length; i ++ ) {
-//          for ( var i = 0; i < 1000; i ++ ) {
-              var face = mesh.geometry.faces[i];
-              face.color.setHex( Math.random() * 0xffffff );
-              face.color.setRGB( Math.random(), Math.random(), Math.random());
-         }
-         
-
-
-//          var mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors } );
-
-
-          mesh.position.setY( - 0.09 );
-          scene.add( mesh );
-          console.log("line 97")
-          console.log(geometry)
-          
-
-        } );*/
+		var meshes = []
         
         function loadMesh(name) {
 			var oReq = new XMLHttpRequest();
 			oReq.open("GET", name, true);
 			oReq.onload = function(oEvent) {
 				var buffergeometry=new THREE.VTKLoader().parse(this.response);
+				
 				geometry=new THREE.Geometry().fromBufferGeometry(buffergeometry);
 				geometry.computeFaceNormals();
 				geometry.computeVertexNormals();
@@ -142,8 +114,9 @@ var init = function() {
 				mesh=new THREE.Mesh(geometry,material);
 				mesh.dynamic=true
 				
-				console.log(mesh)
+				//console.log(mesh)
 				scene.add(mesh);
+				meshes.push(mesh)
 				
 			}
 			oReq.send();
@@ -155,21 +128,16 @@ var init = function() {
 		       url:"files_to_load.json",
 		       data:function(data){},
 		       success:function(data,textStatus,jqXHR){
-			       console.log(data)
+			       //console.log(data)
 			       N = Object.keys(data["filename"])
-			       console.log(N)
+			       //console.log(N)
 			       for (i=0;i<N.length;i++){
 				       loadMesh(data["filename"][i])
-				       //loadMesh("data/mindboggled/Twins-2-1/labels/left_cortical_surface/freesurfer_cortex_labels.vtk")
-				       console.log("added mesh",i)
-				       console.log(data["filename"][i])
-				       //break
 			       }  
 		       }})
 		
-		//console.log(mesh.geometry.faces)
 		        
-               // renderer
+        // renderer
 
         renderer = new THREE.WebGLRenderer( { antialias: false } );
         renderer.setPixelRatio( window.devicePixelRatio );
@@ -183,6 +151,69 @@ var init = function() {
         stats.domElement.style.position = 'absolute';
         stats.domElement.style.top = '0px';
         container.appendChild( stats.domElement );
+
+		projector = new THREE.Projector();
+		mouseVector = new THREE.Vector3();
+
+			function setFromCamera(raycaster, coords, origin){
+			    raycaster.ray.origin.copy( camera.position );
+			    raycaster.ray.direction.set( coords.x, coords.y, 0.5 ).unproject( camera ).sub( camera.position     ).normalize();
+			}
+
+				
+		var objectPick = function(e){
+			
+			/*containerWidth = container.clientWidth;
+			containerHeight = container.clientHeight;
+			
+			
+			mouseVector.x = 2 * (e.clientX / containerWidth) - 1;
+			mouseVector.y = 1 - 2 * ( e.clientY / containerHeight );
+			mouseVector.z =0.5
+			
+			//var raycaster = projector.pickingRay( mouseVector.clone(), camera );
+			//var raycaster = projector.setFromCamera(mouseVector.clone(), camera)
+			//var intersects = raycaster.intersectObjects( mesh.children ); //??? mesh.children??
+			
+			//var mouse3d;
+			
+			//mouse3D.x = (event.clientX / window.innerWidth) * 2 - 1;
+			//mouse3D.y = -(event.clientY / window.innerHeight) * 2 + 1;
+			//mouse3D.z = 0.5;
+			
+			projector.unprojectVector(mouseVector, camera);
+			var ray = new THREE.Ray(camera.position, mouseVector.sub(camera.position).normalize());
+			console.log(ray)
+			var intersects = ray.intersectPlane(meshes);
+			
+			console.log(intersects)
+			//return intersects*/
+			
+			console.log("attempting to pick object")
+			
+		    raycaster = new THREE.Raycaster();
+		    mouse = new THREE.Vector2();
+		    
+		    mouse.x = ( event.clientX / renderer.domElement.width ) * 2 - 1;
+		    mouse.y = - ( event.clientY / renderer.domElement.height ) * 2 + 1;
+		    
+		    setFromCamera(raycaster, mouse, camera );
+		    
+		    var intersects = raycaster.intersectObjects( scene.children );
+		    console.log(intersects)
+			
+			}
+	
+	
+		$(document).click(function(e) {
+		    if (e.shiftKey) {
+		        //alert("shift+click")
+		        objectPick(e)
+		    } 
+		});
+		
+		//window.addEventListener( 'click', objectPick, false );
+
 
         window.addEventListener( 'resize', onWindowResize, false );
         
@@ -223,127 +254,6 @@ var init = function() {
 
     </script>
 
-    <script>
-	                
-            var loadFile = function(csvfile, baseval)
-            
-            {
-
-
-//                var loader = new THREE.VTKLoader();
-				
-				//loader.load( "lh.pial.vtk" );
-				//console.log("line 273")
-				//loader.load("data/mindboggled/Twins-2-1/labels/left_cortical_surface/freesurfer_cortex_labels.vtk")
-				//loader.load( "data/mindboggled/Twins-2-1/labels/left_cortical_surface/freesurfer_cortex_labels.vtk", function ( geometry ) {
-
-				          //geometry.computeVertexNormals();
-						  var material = new THREE.MeshLambertMaterial( { color:0xffffff, side: THREE.DoubleSide } );
-				          var mesh = new THREE.Mesh( geometry, material );
-				          mesh.position.setY( - 0.09 );
-				          scene.add( mesh );
-				          
-				        $.get(csvfile, function(data){
-	
-						console.log("line 285")
-	
-	                    var arraydat = data.split('\r')
-	                    var color;
-						console.log("line 245")
-						//console.log(geometry)
-						
-	                    for ( var i = 0; i < geometry.faces.length; i++ )
-	                    {
-	                        face = geometry.faces[ i ];
-	                        var faceIndices = ['a', 'b', 'c', 'd'];
-	
-	                        // determine if face is a tri or a quad
-	                        var numberOfSides = ( face instanceof THREE.Face3 ) ? 3 : 4;
-
-	                        // assign color to each vertex of current face
-	                        for( var j = 0; j < numberOfSides; j++ )
-	                        {
-		                        //console.log("line 259")
-	                            color = new THREE.Color( 0xffffff );
-	                            //console.log("line 261")
-	                            //console.log(arraydat[i])
-	                            var carray = getColor(arraydat[i], baseval)
-	                            //console.log(carray)
-	                            color.setRGB(carray[0], carray[1], carray[2]);
-	                            face.vertexColors[ j ] = color;
-	                            face.color = color;
-	                        }
-	                    }
-						console.log("line 262")
-	                    geometry.dynamic  = true;
-	                    geometry.dirty = true;
-	                    geometry.needsUpdate = true;
-	
-		                cubeMaterial = new THREE.MeshBasicMaterial(
-	                    { color: 0xffffff, shading: THREE.FlatShading,
-	                    vertexColors: THREE.VertexColors } );
-                    
-	                    var mesh = new THREE.Mesh( geometry, cubeMaterial );
-	                    mesh.castShadow = true;
-	                    
-	                    
-	                    sphereMaterial =
-                  new THREE.MeshLambertMaterial(
-                    {
-                      color: 0xFF4DDE,
-                      transparent: true,
-                      opacity: 0.0
-                    });
-					
-					
-					var radius = 8,
-	                segments = 16,
-	                rings = 16;
-	
-	            // create a new mesh with
-	            // sphere geometry - we will cover
-	            // the sphereMaterial next!
-	                sphere = new THREE.Mesh(
-	
-	                  new THREE.SphereGeometry(
-	                    radius,
-	                    segments,
-	                    rings),
-	
-	                  sphereMaterial);
-	
-	                
-
-					
-					//scene = new THREE.Scene();
-	                    
-	                    scene.add(sphere);
-	                    
-	                    
-	                    sphere.material.opacity = 0.0;
-	
-					    scene.add( mesh );
-	                    objects.push(mesh);
-                     });
-				          
-				
-				        } ;
-            
-
-    </script>
-    
-    
-    
-    <script>
-	//MAIN    
-	    
-	    //loadFile("data/mindboggled/Twins-2-1/xtra/tables/curvature-neg-250.csv", 10)
-	    //loadFile("data/mindboggled/Twins-2-1/xtra/tables/travel-3000.csv", 10)
-	    //loadFile("data/mindboggled/Twins-2-1/xtra/tables/vertexlabels.csv", 10)
-	    
-	    
-	    
-    </script>
     
   </body>
 </html>
