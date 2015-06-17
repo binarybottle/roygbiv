@@ -113,6 +113,7 @@ var init = function() {
 				geometry.colorsNeedUpdate = true
 				mesh=new THREE.Mesh(geometry,material);
 				mesh.dynamic=true
+				mesh.name = name
 				
 				//console.log(mesh)
 				scene.add(mesh);
@@ -201,6 +202,9 @@ var init = function() {
 		    
 		    var intersects = raycaster.intersectObjects( scene.children );
 		    console.log(intersects)
+		    if (intersects.length > 0){
+			    console.log(intersects[0].object.name)
+		    }
 			
 			}
 	
