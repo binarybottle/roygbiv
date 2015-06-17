@@ -1,215 +1,112 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
-  <style>
-    html, body { 
-      background-color:#000;
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      width:100%;
-      overflow: hidden !important;  
-    }
-    
-  </style>
-  
-  <style type="text/css">
-    body {
-      font-family: sans-serif;
-      margin-top: 0px;
-      margin-left: 0px;
-    }
-    
-    div.logoBox {
-      background-color: #000;
-      color: white;
-      width: 30%;
-      float: right;
-      margin-bottom: 10px;
-    }
-    
-    div.xtkBox {
-      width:70%;
-      height:100%;
-      float:left;
-      background-color: black;
-      
-    }
-  </style>    
-  
-  <style>
-    .box {
-          font: 10px sans-serif;
-        }
-        
-        .box text {fill:white;}
-        .box line,
-        .box rect,
-        .box circle {
-          fill: steelblue;
-          stroke: white;
-          stroke-width: 1px;
-        }
-        
-        .box .center {
-          stroke-dasharray: 3,3;
-          fill: white;
-          stroke: white;
-        }
-        
-        .box .outlier {
-          fill: white;
-          stroke: white;
-          
-        }
-        
-        .axis {
-          font: 12px sans-serif;
-        }
-         
-        .axis path,
-        .axis line {
-          fill: none;
-          stroke: white;
-          shape-rendering: crispEdges;
-        }
-         
-
-  </style>
-
-<script src="three.js/build/three.min.js"></script>
-<script src="three.js/examples/js/controls/TrackballControls.js"></script>
-<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
-<script src="three.js/examples/js/loaders/VTKLoader.js"></script>
-<!--script src="three.js/examples/js/Detector.js"></script>
-<script src="three.js/examples/js/libs/stats.min.js"></script-->
-
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.16/angular.min.js"></script>
-<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-<script src="scripts/box.js"></script>
-
-// Roberto braincatalogue for three.js shading
-<script src="three.js/examples/js/shaders/CopyShader.js"></script>
-<script src="three.js/examples/js/shaders/SSAOShader.js"></script>
-<script src="three.js/examples/js/postprocessing/EffectComposer.js"></script>
-<script src="three.js/examples/js/postprocessing/RenderPass.js"></script>
-<script src="three.js/examples/js/postprocessing/MaskPass.js"></script>
-<script src="three.js/examples/js/postprocessing/ShaderPass.js"></script>
-
-<!--script src="/lib/PLYLoader.js"></script>
-<script src="/lib/pako.min.js"></script-->
-
-<script>
-var  renderer,
-   scene,
-   mesh,
-   camera,
-   trackball,
-   material,
-   geometry;
-   
-   
-function loadMesh(name,i) {
-  var oReq = new XMLHttpRequest();
-  oReq.open("GET", name, true);
-  oReq.onload = function(oEvent) {
-    var buffergeometry=new THREE.VTKLoader().parse(this.response);
-    geometry=new THREE.Geometry().fromBufferGeometry(buffergeometry);
-    geometry.computeFaceNormals();
-    geometry.computeVertexNormals();
-    //material=new THREE.MeshNormalMaterial();
-    material=new THREE.MeshBasicMaterial({wireframe:false,linewidth:0.001,shading:THREE.FlatShading,vertexColors:THREE.FaceColors});
-    mesh=new THREE.Mesh(geometry,material);
-    //mesh.position.set(0, 0, -15);
-    //mesh.scale.set(20, 20, 20);
-
-    for (i = 0; i < mesh.geometry.faces.length; i++) {
-        foo = mesh.geometry.faces[i]
-        //foo.color = new THREE.Color()
-        foo.color.setRGB( Math.random(), Math.random(), Math.random())
-        //foo.color.setRGB(0.8, 0.1, 0.8)
-    }
-    scene.add(mesh);
-  }
-  oReq.send();
-}
-function init() {
-  renderer = new THREE.WebGLRenderer({alpha:true});
-  var w=window.innerWidth;
-  var h=window.innerHeight;
-  renderer.setSize(w,h);
-  renderer.setClearColor(0x000000,0);
-  console.log(document.body)
-  console.log(renderer)
-  document.body.appendChild(renderer.domElement);
-  scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera( 75, w/h, 1, 100);
-//  camera = new THREE.OrthographicCamera( w / - 2, w / 2, h / 2, h / - 2, 1, 1000);
-
-  camera.position.z = 100;
-  scene.add(camera);
-  trackball = new THREE.TrackballControls(camera,renderer.domElement);
-  trackball.staticMoving=true;
-
-// Roberto braincatalogue
-  var depthShader = THREE.ShaderLib[ "depthRGBA" ];
-  var depthUniforms = THREE.UniformsUtils.clone( depthShader.uniforms );
-  depthMaterial = new THREE.ShaderMaterial( { fragmentShader: depthShader.fragmentShader, vertexShader: depthShader.vertexShader, uniforms: depthUniforms } );
-  depthMaterial.blending = THREE.NoBlending;
-  // AO postprocessing
-  composer = new THREE.EffectComposer( renderer );
-  composer.addPass( new THREE.RenderPass( scene, camera ) );
-  depthTarget = new THREE.WebGLRenderTarget( w, h, { minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, format: THREE.RGBAFormat } );
-  var effect = new THREE.ShaderPass( THREE.SSAOShader );
-  effect.uniforms['tDepth'].value = depthTarget;
-  effect.uniforms['size'].value.set( w, h );
-  effect.uniforms['cameraNear'].value = camera.near;
-  effect.uniforms['cameraFar'].value = camera.far;
-  effect.uniforms['lumInfluence'].value = 0.5;
-  //effect.uniforms['aoClamp'].value = 0.9;
-  effect.renderToScreen = true;
-  composer.addPass( effect );
-// end
-
-//  loadMesh("data/mindboggled/Twins-2-1/shapes/left_exploded/freesurfer_curvature_1031.vtk");
-  loadMesh("data/mindboggled/Twins-2-1/labels/left_cortical_surface/freesurfer_cortex_labels.vtk");
-}
-function render() {
-  //renderer.render(scene,camera);
-  trackball.update();
-  scene.overrideMaterial = depthMaterial;
-	renderer.render(scene,camera,depthTarget);
-	scene.overrideMaterial = null;
-	composer.render();
-}
-function animate() {
-  requestAnimationFrame(animate);
-  //setTimeout(function(){animate()},100);
-  render();
-  //mesh.rotation.y+=0.001;
-}
-function flip() {
-  if(material.side==THREE.FrontSide)
-    material.side=THREE.BackSide;
-  else
-    material.side=THREE.FrontSide;
-}
-
-window.onload = function() {
-init();
-animate();
-}
-</script>
-
-<body>
-    <div>
-      <div id="r0" class="xtkBox"></div>
-      <!-- the sidebar -->
-      <div class="logoBox" id="logoBox">
-        <center>
-        <h2>mbviewer</h2>
-        
-        </center>
+<html lang="en">  
+  <head>  
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link type="text/css" href="http://media.mindboggle.info/packages/bigbrain-surface-viewer/css/ui-darkness/jquery-ui-1.8.10.custom.css" rel="stylesheet">
+    <link type="text/css" href="http://media.mindboggle.info/packages/bigbrain-surface-viewer/css/widgets.css" rel="stylesheet">
+    <link type="text/css" href="http://media.mindboggle.info/packages/bigbrain-surface-viewer/css/common.css" rel="stylesheet">
+    <link type="text/css" href="http://media.mindboggle.info/packages/bigbrain-surface-viewer/css/surface-viewer-demo.css" rel="stylesheet">
+    <link rel="icon" type="http://media.mindboggle.info/packages/bigbrain-surface-viewer/image/png" href="http://media.mindboggle.info/packages/bigbrain-surface-viewer/img/brainbrowser.png">
+    <title>BigBrain Surface Viewer (powered by BrainBrowser)</title>
+    <meta name="description" content="The BrainBrowser Surface Viewer is a WebGL-based visualization tool capable of displaying 3D neurological surface data in real-time.">
+    <meta property="og:image" content="https://brainbrowser.cbrain.mcgill.ca/img/surface-viewer.png">
+    <meta property="og:image:secure_url" content="https://brainbrowser.cbrain.mcgill.ca/img/surface-viewer.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:creator" content="@thsherif">
+    <meta name="twitter:title" content="BigBrain Surface Viewer (powered by BrainBrowser)">
+    <meta name="twitter:description" content="The BrainBrowser Surface Viewer is a WebGL-based visualization tool capable of displaying 3D neurological surface data in real-time.">
+    <meta name="twitter:image" content="https://brainbrowser.cbrain.mcgill.ca/img/surface-viewer.png">
+  </head>  
+  <body>  
+    <div id="display">
+      <h1 id="app-name" class="app-label">
+        BigBrain Surface Viewer<br>
+        <small>
+          (powered by <a href="https://brainbrowser.cbrain.mcgill.ca/" target="_blank">BrainBrowser</a>)</small>
+      </h1>
+      <a id="control-button" class="button">Hide Controls</a>
+      <div id="vertex-data-wrapper"></div>
+      <!-- Loading image from: http://www.ajaxload.info/ -->
+      <div id="loading" style="display: none"><img src="http://media.mindboggle.info/packages/bigbrain-surface-viewer/img/ajax-loader.gif"></div>
+      <div id="brainbrowser"></div>
+      <div id="controls">
+        <div id="controls-content">
+          <div id="surface_choice" class="box-top full-box">
+            <h4>Load your own data!</h4>
+            <div class="instructions">
+              (Note: your data will remain on your computer and will not be transferred to the BrainBrowser server.)
+            </div>     
+            <div id="obj_file_select" class="file-select">
+              Object File:
+              <div id="browse_obj_file"><input type="file" name="objfile" id="objfile"></div><br>
+              Format: 
+              <select  id="obj_file_format" class="file-format" name="format">
+                <option value="json">JSON</option>
+                <option value="freesurferasc">Freesurfer ASC</option>
+              </select>
+              <div class="format-hint"></div>
+              <div id="obj_file_submit_div" class="file-submit-div">
+                <span id="obj_file_submit" class="button file-submit">Load</span>
+	        <span id="clearshapes" class="button">Unload All</span>
+              </div>
+            </div>
+          </div>
+          <div class="combo-box">
+            <div id="views" class="box full-box" >
+              Background Color:
+              <select id="clear_color">
+                <option value="0x000000">Black</option>
+                <option value="0x888888">Gray</option>
+                <option value="0xffffff">White</option>
+                <option value="0xff0000">Red</option>
+                <option value="0x00ff00">Green</option>
+                <option value="0x0000ff">Blue</option>
+                <option value="0x00ffff">Cyan</option>
+                <option value="0xff00ff">Magenta</option>
+                <option value="0xffff00">Yellow</option>
+              </select>
+              <div class="button-row">
+                Autorotate: 
+                <span id="autorotate-controls" class="buttonset">
+                  <input type="checkbox" id="autorotateX" class="icon"><label for="autorotateX">X</label> 
+                  <input type="checkbox" id="autorotateY" class="icon"><label for="autorotateY">Y</label> 
+                  <input type="checkbox" id="autorotateZ" class="icon"><label for="autorotateZ">Z</label>
+                </span>
+              </div>
+              <div class="button-row">
+                <span title="Axes"><input type="checkbox" class="icon" id="toggle-axes"><label for="toggle-axes"><img src="http://media.mindboggle.info/packages/bigbrain-surface-viewer/img/axes_icon.png"></label></span>
+                <span title="Reset view"><a class="icon" id="resetview"><img src="http://media.mindboggle.info/packages/bigbrain-surface-viewer/img/reset_icon.png"></a></span>
+                <span title="Wireframe"><input type="checkbox" class="icon" id="meshmode"><label for="meshmode"><img src="http://media.mindboggle.info/packages/bigbrain-surface-viewer/img/wireframe_icon.png"></label></span>
+                <span title="3D glasses!"><input type="checkbox" class="icon" id="threedee"><label for="threedee"><img src="http://media.mindboggle.info/packages/bigbrain-surface-viewer/img/3Dglasses_icon.png"></label></span>
+                <span title="Screenshot"><a class="icon" id="screenshot"><img src="http://media.mindboggle.info/packages/bigbrain-surface-viewer/img/screenshot_icon.png"></a></span>
+                <span title="Opacity On/Custom"><input type="checkbox" class="icon" id="toggleopacitycustom"><label for="toggleopacitycustom"><img src="http://media.mindboggle.info/packages/bigbrain-surface-viewer/img/toggle_opacity_icon_oncustom.png"></label></span><br><br>
+              </div>
+            </div>
+          </div>        
+        </div>
       </div>
     </div>
-</body>
-</html>
+    <script src="http://media.mindboggle.info/packages/bigbrain-surface-viewer/js/lib/jquery-1.6.4.min.js"></script>
+    <script src="http://media.mindboggle.info/packages/bigbrain-surface-viewer/js/lib/jquery-ui-1.8.10.custom.min.js"></script>
+    <script src="http://media.mindboggle.info/packages/bigbrain-surface-viewer/js/lib/common.js"></script>
+    <script src="http://media.mindboggle.info/packages/bigbrain-surface-viewer/js/brainbrowser/brainbrowser.js"></script>
+    <script src="http://media.mindboggle.info/packages/bigbrain-surface-viewer/js/brainbrowser/core/tree-store.js"></script>
+    <script src="http://media.mindboggle.info/packages/bigbrain-surface-viewer/js/brainbrowser/lib/config.js"></script>
+    <script src="http://media.mindboggle.info/packages/bigbrain-surface-viewer/js/brainbrowser/lib/utils.js"></script>
+    <script src="http://media.mindboggle.info/packages/bigbrain-surface-viewer/js/brainbrowser/lib/events.js"></script> 
+    <script src="http://media.mindboggle.info/packages/bigbrain-surface-viewer/js/brainbrowser/lib/loader.js"></script>
+    <script src="http://media.mindboggle.info/packages/bigbrain-surface-viewer/js/brainbrowser/lib/color-map.js"></script> 
+    <script src="http://media.mindboggle.info/packages/bigbrain-surface-viewer/js/brainbrowser/surface-viewer.js"></script>
+    <script src="http://media.mindboggle.info/packages/bigbrain-surface-viewer/js/brainbrowser/surface-viewer/lib/three.js"></script>
+    <script src="http://media.mindboggle.info/packages/bigbrain-surface-viewer/js/brainbrowser/surface-viewer/lib/parse-intensity-data.js"></script> 
+    <script src="http://media.mindboggle.info/packages/bigbrain-surface-viewer/js/brainbrowser/surface-viewer/modules/annotations.js"></script>
+    <script src="http://media.mindboggle.info/packages/bigbrain-surface-viewer/js/brainbrowser/surface-viewer/modules/color.js"></script>
+    <script src="http://media.mindboggle.info/packages/bigbrain-surface-viewer/js/brainbrowser/surface-viewer/modules/loading.js"></script>
+    <script src="http://media.mindboggle.info/packages/bigbrain-surface-viewer/js/brainbrowser/surface-viewer/modules/rendering.js"></script>
+    <script src="http://media.mindboggle.info/packages/bigbrain-surface-viewer/js/brainbrowser/surface-viewer/modules/views.js"></script>
+    <script src="http://media.mindboggle.info/packages/bigbrain-surface-viewer/js/surface-viewer-demo.config.js"></script> 
+    <script src="http://media.mindboggle.info/packages/bigbrain-surface-viewer/js/lib/AnaglyphEffect.js"></script>
+    <script src="http://media.mindboggle.info/packages/bigbrain-surface-viewer/js/surface-viewer-demo.js"></script> 
+  </body>  
+</html>  
