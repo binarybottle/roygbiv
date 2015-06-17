@@ -164,32 +164,6 @@ var init = function() {
 				
 		var objectPick = function(e){
 			
-			/*containerWidth = container.clientWidth;
-			containerHeight = container.clientHeight;
-			
-			
-			mouseVector.x = 2 * (e.clientX / containerWidth) - 1;
-			mouseVector.y = 1 - 2 * ( e.clientY / containerHeight );
-			mouseVector.z =0.5
-			
-			//var raycaster = projector.pickingRay( mouseVector.clone(), camera );
-			//var raycaster = projector.setFromCamera(mouseVector.clone(), camera)
-			//var intersects = raycaster.intersectObjects( mesh.children ); //??? mesh.children??
-			
-			//var mouse3d;
-			
-			//mouse3D.x = (event.clientX / window.innerWidth) * 2 - 1;
-			//mouse3D.y = -(event.clientY / window.innerHeight) * 2 + 1;
-			//mouse3D.z = 0.5;
-			
-			projector.unprojectVector(mouseVector, camera);
-			var ray = new THREE.Ray(camera.position, mouseVector.sub(camera.position).normalize());
-			console.log(ray)
-			var intersects = ray.intersectPlane(meshes);
-			
-			console.log(intersects)
-			//return intersects*/
-			
 			console.log("attempting to pick object")
 			
 		    raycaster = new THREE.Raycaster();
@@ -201,9 +175,32 @@ var init = function() {
 		    setFromCamera(raycaster, mouse, camera );
 		    
 		    var intersects = raycaster.intersectObjects( scene.children );
-		    console.log(intersects)
+		    //console.log(intersects)
 		    if (intersects.length > 0){
-			    console.log(intersects[0].object.name)
+			    picked_mesh_name = intersects[0].object.name
+			    picked_mesh = intersects[0].object
+			    picked_mesh.material.transparent = true
+				picked_mesh.material.opacity = 1
+			    tmp = picked_mesh_name.split("_")
+			    picked_label_id = tmp[tmp.length-1].split(".vtk")[0]
+
+				for (i=0;i<meshes.length;i++){
+					if (meshes[i].name!=picked_mesh_name){
+						meshes[i].material.transparent = true
+						meshes[i].material.opacity = 0.4
+					}
+				}
+			    //picked_mesh.material.transparent = true
+			    //picked_mesh.material.opacity = 0.5
+			        
+		    }
+		    else{
+			    for (i=0;i<meshes.length;i++){
+					meshes[i].material.transparent = true
+					meshes[i].material.opacity = 1
+					
+				}
+			    
 		    }
 			
 			}
