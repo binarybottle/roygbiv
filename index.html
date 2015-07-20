@@ -1,264 +1,110 @@
+
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>three.js webgl - loaders - vtk loader</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <style>
-      body {
-        font-family: Monospace;
-        background-color: #000;
-        color: #fff;
-        margin: 0px;
-        overflow: hidden;
-      }
-      #info {
-        color: #fff;
-        position: absolute;
-        top: 10px;
-        width: 100%;
-        text-align: center;
-        z-index: 100;
-        display:block;
-      }
-      #info a, .button { color: #f00; font-weight: bold; text-decoration: underline; cursor: pointer }
-    </style>
-  </head>
+	<head>
+		<title>three.js webgl - loaders - vtk loader</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				font-family: Monospace;
+				background-color: #000;
+				color: #fff;
+				margin: 0px;
+				overflow: hidden;
+			}
+			#info {
+				color: #fff;
+				position: absolute;
+				top: 10px;
+				width: 100%;
+				text-align: center;
+				z-index: 100;
+				display:block;
+			}
+			#info a, .button { color: #f00; font-weight: bold; text-decoration: underline; cursor: pointer }
+		</style>
+		<style>
+			
+			
+			<style>
+			
+				.box {
+					font:10px sans-serif;
+				}
+				
+				.box text {
+					fill:#fff;
+				}
+				
+				.box line,.box rect,.box circle {
+					fill:#4682b4;
+					stroke:#fff;
+					stroke-width:1px;
+				}
+				
+				.box .center {
+					stroke-dasharray:3,3;
+					fill:#fff;
+					stroke:#fff;
+				}
+				
+				.box .outlier {
+					fill:none;
+					stroke:#fff;
+				}
+				
+				.axis {
+					font:12px sans-serif;
+				}
+				
+				.axis path,.axis line {
+					fill:none;
+					stroke:#fff;
+					shape-rendering:crispEdges;
+				}
+				
+				.x.axis path {
+					fill:none;
+					stroke:#fff;
+					shape-rendering:crispEdges;
+				}
+	
+		</style>
+		
+	</head>
 
-  <body>
+	<body ng-app="visApp" ng-controller = "visAppController">
+		<div style="left: 0px; margin: auto; position: absolute; right: 70%; width: 30%; text-align: center;">
+			<h1>ROYGBIV</h1>
+			<div id="d3plot" style="background-color:#000;opacity:0.5;padding:10px;text-align:left;color:white;" float:left;="">
 
-    <script src="three.js/build/three.min.js"></script>
+				Shift+click on a label to see stats
+				<br>
+				<br>
+				Selected Label: {{selectedLabel}}
+				
+			</div>
+		</div>
+		
+		<!--<div id="info">
+		<h1>ROYGBIV</h1>
+		</div>-->
 
-    <script src="three.js/examples/js/controls/TrackballControls.js"></script>
+		<script src="js/three.min.js"></script>
+		<script src="js/Projector.js"></script>
+		<script src="js/Detector.js"></script>
+		<script src="js/TrackballControls.js"></script>
 
-    <script src="three.js/examples/js/loaders/VTKLoader.js"></script>
-    <script src="three.js/examples/js/renderers/Projector.js"></script>
-    <script src="three.js/examples/js/Detector.js"></script>
-    <script src="three.js/examples/js/libs/stats.min.js"></script>
-    <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
-    <script src="scripts/utils.js"></script>
+		<script src="js/VTKLoader.js"></script>
 
-    <script>
+		<!--<script src="js/Detector.js"></script>
+		<script src="js/libs/stats.min.js"></script>-->
+		<script src="js/jquery.min.js"></script>
+		<script src="js/angular.min.js"></script>
+		<script src="js/d3.min.js"></script>
+		<script src="js/box.js"></script>
+		<script src="bunny.js"></script>
 
-
-
-      if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
-
-      var container, stats;
-
-      var camera, controls, scene, renderer;
-
-      var cross;
-      
-      var objects = [];
-      
-
-
-var init = function() {
-
-        camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.01, 1e10 );
-        camera.position.z = 200;
-        
-        controls = new THREE.TrackballControls( camera );
-
-        controls.rotateSpeed = 5.0;
-        controls.zoomSpeed = 5;
-        controls.panSpeed = 2;
-
-        controls.noZoom = false;
-        controls.noPan = false;
-
-        controls.staticMoving = true;
-        controls.dynamicDampingFactor = 0.3;
-
-        scene = new THREE.Scene();
-
-        scene.add( camera );
-
-        // light
-
-        var dirLight = new THREE.DirectionalLight( 0xffffff );
-        dirLight.position.set( 200, 200, 1000 ).normalize();
-
-        camera.add( dirLight );
-        camera.add( dirLight.target );
-
-        var material = new THREE.MeshLambertMaterial( { color:0xffffff, side: THREE.DoubleSide } );
-
-        var loader = new THREE.VTKLoader();
-
-    var meshes = []
-        
-        function loadMesh(name) {
-      var oReq = new XMLHttpRequest();
-      oReq.open("GET", name, true);
-      oReq.onload = function(oEvent) {
-        var buffergeometry=new THREE.VTKLoader().parse(this.response);
-        
-        geometry=new THREE.Geometry().fromBufferGeometry(buffergeometry);
-        geometry.computeFaceNormals();
-        geometry.computeVertexNormals();
-        geometry.__dirtyColors = true;
-            
-        material=new THREE.MeshLambertMaterial({vertexColors: THREE.FaceColors});
-        var color = [Math.random(), Math.random(), Math.random()]
-              
-        for (i=0;i<geometry.faces.length;i++){
-          var face = geometry.faces[i];
-          face.color.setHex( Math.random() * 0xffffff );
-          face.color.setRGB(color[0],color[1],color[2]);
-          
-          //face.materials = [ new THREE.MeshBasicMaterial( { color: Math.random() * 0xffffff } ) ];
-        }
-        geometry.colorsNeedUpdate = true
-        mesh=new THREE.Mesh(geometry,material);
-        mesh.dynamic=true
-        mesh.name = name
-        
-        mesh.rotation.y = Math.PI * 1.1;
-        mesh.rotation.x = Math.PI * 0.5;
-        mesh.rotation.z = Math.PI * 1.5;
-
-        //console.log(mesh)
-        scene.add(mesh);
-        meshes.push(mesh)
-        
-      }
-      oReq.send();
-    }
-    
-    //loadMesh("data/mindboggled/Twins-2-1/labels/left_cortical_surface/freesurfer_cortex_labels.vtk")
-    
-        $.ajax({dataType: "json",
-           url:"files_to_load.json",
-           data:function(data){},
-           success:function(data,textStatus,jqXHR){
-             //console.log(data)
-             N = Object.keys(data["filename"])
-             //console.log(N)
-             for (i=0;i<N.length;i++){
-               loadMesh(data["filename"][i])
-             }  
-           }})
-    
-            
-        // renderer
-
-        renderer = new THREE.WebGLRenderer( { antialias: false } );
-        renderer.setPixelRatio( window.devicePixelRatio );
-        renderer.setSize( window.innerWidth, window.innerHeight );
-
-        container = document.createElement( 'div' );
-        document.body.appendChild( container );
-        container.appendChild( renderer.domElement );
-
-        stats = new Stats();
-        stats.domElement.style.position = 'absolute';
-        stats.domElement.style.top = '0px';
-        container.appendChild( stats.domElement );
-
-    projector = new THREE.Projector();
-    mouseVector = new THREE.Vector3();
-
-      function setFromCamera(raycaster, coords, origin){
-          raycaster.ray.origin.copy( camera.position );
-          raycaster.ray.direction.set( coords.x, coords.y, 0.5 ).unproject( camera ).sub( camera.position     ).normalize();
-      }
-
-        
-    var objectPick = function(e){
-      
-      console.log("attempting to pick object")
-      
-        raycaster = new THREE.Raycaster();
-        mouse = new THREE.Vector2();
-        
-        mouse.x = ( event.clientX / renderer.domElement.width ) * 2 - 1;
-        mouse.y = - ( event.clientY / renderer.domElement.height ) * 2 + 1;
-        
-        setFromCamera(raycaster, mouse, camera );
-        
-        var intersects = raycaster.intersectObjects( scene.children );
-        //console.log(intersects)
-        if (intersects.length > 0){
-          picked_mesh_name = intersects[0].object.name
-          picked_mesh = intersects[0].object
-          picked_mesh.material.transparent = true
-        picked_mesh.material.opacity = 1
-          tmp = picked_mesh_name.split("_")
-          picked_label_id = tmp[tmp.length-1].split(".vtk")[0]
-
-        for (i=0;i<meshes.length;i++){
-          if (meshes[i].name!=picked_mesh_name){
-            meshes[i].material.transparent = true
-            meshes[i].material.opacity = 0.4
-          }
-        }
-          //picked_mesh.material.transparent = true
-          //picked_mesh.material.opacity = 0.5
-              
-        }
-        else{
-          for (i=0;i<meshes.length;i++){
-          meshes[i].material.transparent = true
-          meshes[i].material.opacity = 1
-          
-        }
-          
-        }
-      
-      }
-  
-  
-    $(document).click(function(e) {
-        if (e.shiftKey) {
-            //alert("shift+click")
-            objectPick(e)
-        } 
-    });
-    
-    //window.addEventListener( 'click', objectPick, false );
-
-
-        window.addEventListener( 'resize', onWindowResize, false );
-        
-        }
-
-
-      init();
-      animate();
-
-
-
- 
-
-
-      
-
-      function onWindowResize() {
-
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-
-        renderer.setSize( window.innerWidth, window.innerHeight );
-
-        controls.handleResize();
-
-      }
-
-      function animate() {
-
-        requestAnimationFrame( animate );
-
-        controls.update();
-        renderer.render( scene, camera );
-
-        stats.update();
-
-      }
-
-    </script>
-
-    
-  </body>
+	</body>
 </html>
