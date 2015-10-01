@@ -26,8 +26,16 @@ filename = download_file(base_url + '/files_to_load.json')
 with open(filename, 'r') as fp:
 	dataset = json.load(fp)
 
-# Download all data files.
+# Download all vtk files.
 for k in dataset['filename']:
 	out_path = dataset['filename'][k]
 	url = base_url + '/' + out_path
 	download_file(url, out_path)
+
+# Download all extra data files.
+for k in dataset['filename']:
+	vtk_path = dataset['filename'][k]
+	label_id = os.path.basename(vtk_path)[len('freesurfer_curvature_'):-4]
+	out_path = "data/mindboggled/Twins-2-1/tables/left_exploded_tables/" + label_id + ".0.csv"
+	url = base_url + '/' + out_path
+	download_file (url, out_path)
