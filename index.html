@@ -1,84 +1,16 @@
-
 <!DOCTYPE html>
 <html lang="en">
 	<head>
 		<title>three.js webgl - loaders - vtk loader</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<style>
-			body {
-				font-family: Monospace;
-				background-color: #000;
-				color: #fff;
-				margin: 0px;
-				overflow: hidden;
-			}
-			#info {
-				color: #fff;
-				position: absolute;
-				top: 10px;
-				width: 100%;
-				text-align: center;
-				z-index: 100;
-				display:block;
-			}
-			#info a, .button { color: #f00; font-weight: bold; text-decoration: underline; cursor: pointer }
-		</style>
-		<style>
-			
-			
-			<style>
-			
-				.box {
-					font:10px sans-serif;
-				}
-				
-				.box text {
-					fill:#fff;
-				}
-				
-				.box line,.box rect,.box circle {
-					fill:#4682b4;
-					stroke:#fff;
-					stroke-width:1px;
-				}
-				
-				.box .center {
-					stroke-dasharray:3,3;
-					fill:#fff;
-					stroke:#fff;
-				}
-				
-				.box .outlier {
-					fill:none;
-					stroke:#fff;
-				}
-				
-				.axis {
-					font:12px sans-serif;
-				}
-				
-				.axis path,.axis line {
-					fill:none;
-					stroke:#fff;
-					shape-rendering:crispEdges;
-				}
-				
-				.x.axis path {
-					fill:none;
-					stroke:#fff;
-					shape-rendering:crispEdges;
-				}
-	
-		</style>
-		
+		<link rel="stylesheet" type="text/css" href="style.css" />
 	</head>
 
 	<body ng-app="visApp" ng-controller = "visAppController">
-		<div style="left: 0px; margin: auto; position: absolute; right: 70%; width: 30%; text-align: center;">
+		<div id="header_n_label">
 			<h1>ROYGBIV</h1>
-			<div id="d3plot" style="background-color:#000;opacity:0.5;padding:10px;text-align:left;color:white;" float:left;="">
-
+			<div id="d3plot">
 				Shift+click on a label to see stats
 				<br>
 				<br>
@@ -87,10 +19,6 @@
 			</div>
 		</div>
 		
-		<!--<div id="info">
-		<h1>ROYGBIV</h1>
-		</div>-->
-
 		<script src="js/three.min.js"></script>
 		<script src="js/Projector.js"></script>
 		<script src="js/Detector.js"></script>

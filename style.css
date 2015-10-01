@@ -1,0 +1,69 @@
+
+body {
+	font-family: Monospace;
+	background-color: #000;
+	color: #fff;
+	margin: 0px;
+	overflow: hidden;
+}
+#info {
+	color: #fff;
+	position: absolute;
+	top: 10px;
+	width: 100%;
+	text-align: center;
+	z-index: 100;
+	display:block;
+}
+#info a, .button { color: #f00; font-weight: bold; text-decoration: underline; cursor: pointer }
+
+.box {
+	font:10px sans-serif;
+}
+
+.box text {
+	fill:#fff;
+}
+
+.box line,.box rect,.box circle {
+	fill:#4682b4;
+	stroke:#fff;
+	stroke-width:1px;
+}
+
+.box .center {
+	stroke-dasharray:3,3;
+	fill:#fff;
+	stroke:#fff;
+}
+
+.box .outlier {
+	fill:none;
+	stroke:#fff;
+}
+
+.axis {
+	font:12px sans-serif;
+}
+
+.axis path,.axis line {
+	fill:none;
+	stroke:#fff;
+	shape-rendering:crispEdges;
+}
+
+.x.axis path {
+	fill:none;
+	stroke:#fff;
+	shape-rendering:crispEdges;
+}
+
+#header_n_label {
+	left: 0px; margin: auto; position: absolute; right: 70%; width: 30%; text-align: center;
+}
+
+#d3plot {
+	background-color:#000;opacity:0.5;padding:10px;text-align:left;color:white;
+}
+
+
