@@ -1,4 +1,4 @@
-data
+data/
 old
 brainbrowser
 notebooks
@@ -6,3 +6,4 @@ scripts
 three.js
 img
 #js
+files_to_load.json
