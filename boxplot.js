@@ -1,4 +1,4 @@
-function do_boxplot(labelID, color) {
+function do_boxplot(divID, labelID, color) {
 	/* Draws a box plot, given the labelID, color */
  
 	console.log("doing boxplots")
@@ -66,7 +66,7 @@ function do_boxplot(labelID, color) {
 
 		var chart = d3.box().whiskers(iqr(1.5)).height(height).domain([min, max]).showLabels(labels);
 
-		var svg = d3.select("#d3plot").append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).attr("class", "box").append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+		var svg = d3.select("#" + divID).append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).attr("class", "box").append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 		var x = d3.scale.ordinal().domain(data.map(function(d) {
 			console.log(d);
 			return d[0]

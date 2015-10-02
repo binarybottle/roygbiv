@@ -1,11 +1,13 @@
 //$(function () {
 
-var BunnyController = function(fnPlot) {
+var BunnyController = function(divID, fnPlot) {
 	var ggg = this;
+	this.selectedLabel = null;
+	this.fnPlot = fnPlot;
+	this.divID = divID;
+
 	angular.module('visApp',[]).controller('visAppController', function($scope) {
-		ggg.selectedLabel = null;
 		ggg.$scope = $scope;
-		ggg.$scope.fnPlot = fnPlot;
 		ggg.init();
 	});
 }
@@ -253,8 +255,8 @@ BunnyController.prototype.objectPick = function(e,meshes,renderer,camera,scene) 
 	  selected_color = [picked_mesh.geometry.faces[0].color["r"],
 						picked_mesh.geometry.faces[0].color["g"],
 						picked_mesh.geometry.faces[0].color["b"]]
-	  if (this.$scope.fnPlot !== null) {
-		this.$scope.fnPlot(picked_label_id, selected_color);
+	  if (this.fnPlot !== null) {
+		this.fnPlot(this.divID, picked_label_id, selected_color);
 	  }
 
 		// Decrease opacity for all other parcels			
