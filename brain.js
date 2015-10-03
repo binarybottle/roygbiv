@@ -1,7 +1,8 @@
-var Brain = function(divID, fnPlot) {
+var Brain = function(divID, fnPlot, manifest_url) {
 	this.selectedLabel = null;
 	this.fnPlot = fnPlot;
 	this.divID = divID;
+	this.manifest_url = (manifest_url) ? manifest_url : "files_to_load.json";
 	
 	this.container_size = function() {
 		var container_pos = this.container.getBoundingClientRect();  // [top, left, right, bottom]
@@ -53,7 +54,7 @@ var Brain = function(divID, fnPlot) {
 		//loadVTK("lh.pial.vtk",scene,meshes)
 	
 		$.ajax({dataType: "json",
-			url: "files_to_load.json",
+			url: this.manifest_url,
 			data: function(data) {},
 			success: function(data, textStatus, jqXHR) {
 				var keys = Object.keys(data["filename"])
