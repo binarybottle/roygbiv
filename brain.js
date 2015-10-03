@@ -13,7 +13,6 @@ var Brain = function(divID, fnPlot, manifest_url) {
 	this.scene = null;
 		
 	this.init = function() {
-		var ggg = this;  // hack to deal with embedded 'this' statements.
 
 		this.container = $('#' + this.divID)[0];
 		var sz = this.container.getBoundingClientRect();
@@ -81,13 +80,13 @@ var Brain = function(divID, fnPlot, manifest_url) {
 		this.container.appendChild( this.renderer.domElement );
 
 		// Interactive things - resizing windows, animate to rotate/zoom
-		window.addEventListener( 'resize', function(){ ggg.onWindowResize(); }, false );
+		window.addEventListener( 'resize', function(){ _this.onWindowResize(); }, false );
 		this.animate();
 	
 		this.container.addEventListener('click', function(e) {
 			if (e.shiftKey) {
-				mesh = ggg.selectMeshByMouse(e);
-				ggg.objectPick(mesh);
+				mesh = _this.selectMeshByMouse(e);
+				_this.objectPick(mesh);
 			}
 			return true;
 		});
@@ -106,8 +105,7 @@ var Brain = function(divID, fnPlot, manifest_url) {
 	
 	//animation
 	this.animate = function() {
-		var ggg = this;
-		requestAnimationFrame( function() { ggg.animate(); });
+		requestAnimationFrame( function() { _this.animate(); });
 
 		this.controls.update();
 		this.renderer.render( this.scene, this.camera );
@@ -139,7 +137,6 @@ var Brain = function(divID, fnPlot, manifest_url) {
 	}
 
 	this.loadMesh = function(url, mesh_props) {
-		var ggg = this;
 
 		var oReq = new XMLHttpRequest();
 		oReq.open("GET", url, true);
@@ -176,8 +173,8 @@ var Brain = function(divID, fnPlot, manifest_url) {
 				mesh.name = tmp[tmp.length-1].split(".vtk")[0]
 			}
 
-			ggg.scene.add(mesh);
-			ggg.meshes.push(mesh)
+			_this.scene.add(mesh);
+			_this.meshes.push(mesh)
 	
 		}
 		oReq.send();
