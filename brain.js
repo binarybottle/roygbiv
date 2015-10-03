@@ -75,7 +75,7 @@ var Brain = function(divID, fnPlot) {
 		window.addEventListener( 'resize', function(){ ggg.onWindowResize(); }, false );
 		this.animate();
 	
-		window.addEventListener('click', function(e) {
+		this.container.addEventListener('click', function(e) {
 			if (e.shiftKey) {
 				mesh = ggg.selectMeshByMouse(e);
 				ggg.objectPick(mesh);
@@ -115,7 +115,7 @@ var Brain = function(divID, fnPlot) {
 
 	//controls
 	this.addControls = function(camera){
-		controls = new THREE.TrackballControls( camera );
+		controls = new THREE.TrackballControls( camera, this.container );
 
 		controls.rotateSpeed = 5.0;
 		controls.zoomSpeed = 5;
