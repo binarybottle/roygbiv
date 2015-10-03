@@ -58,7 +58,7 @@ var Brain = function(divID, fnPlot) {
 			success: function(data, textStatus, jqXHR) {
 				var keys = Object.keys(data["filename"])
 				for (i=0;i<keys.length;i++){
-						ggg.loadMesh(data["filename"][keys[i]]);
+					ggg.loadMesh(data["filename"][keys[i]], keys[i]);
 				}
 			}
 		});
@@ -129,7 +129,7 @@ var Brain = function(divID, fnPlot) {
 		return controls
 	}
 
-	this.loadMesh = function(url) {
+	this.loadMesh = function(url, mesh_name) {
 		var ggg = this;
 
 		var oReq = new XMLHttpRequest();
@@ -153,10 +153,13 @@ var Brain = function(divID, fnPlot) {
 			}
 			geometry.colorsNeedUpdate = true;
 			mesh = new THREE.Mesh(geometry, material);
-			mesh.dynamic=true
-			var tmp = url.split("_")
-			mesh.name = tmp[tmp.length-1].split(".vtk")[0]
-	
+			mesh.dynamic = true;
+			if (mesh_name) {
+				mesh.name = mesh_name;
+			} else {
+				var tmp = url.split("_")
+				mesh.name = tmp[tmp.length-1].split(".vtk")[0]
+			}
 			mesh.rotation.y = Math.PI * 1.1;
 			mesh.rotation.x = Math.PI * 0.5;
 			mesh.rotation.z = Math.PI * 1.5;
