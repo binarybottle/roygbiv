@@ -4,16 +4,18 @@ var Brain = function(divID, fnPlot, manifest_url) {
 	this.divID = divID;
 	this.manifest_url = (manifest_url) ? manifest_url : "files_to_load.json";
 	
-	this.container_size = function() {
-		var container_pos = this.container.getBoundingClientRect();  // [top, left, right, bottom]
-		return [container_pos.width, container_pos.height];
-	};
-
+	// Just to declare the parts up front...
+	this.camera = null;
+	this.container = null;
+	this.controls = null;
+	this.renderer = null;
+	this.scene = null;
+		
 	this.init = function() {
 		var ggg = this;  // hack to deal with embedded 'this' statements.
 
 		this.container = $('#' + this.divID)[0];
-		var sz = this.container_size();
+		var sz = this.container.getBoundingClientRect();
 
 		//Some important variables
 		this.meshes = []
@@ -30,10 +32,15 @@ var Brain = function(divID, fnPlot, manifest_url) {
 		// Params: x,y,z starting position
 		this.camera = new THREE.PerspectiveCamera(
 			60, // fov,
-			sz[1] / sz[0], // aspect ratio
+			sz.height / sz.width, // aspect ratio
 			0.1,  // near
 			1e10 );  // far
 		this.camera.position.z = 200;
+
+		// The Renderer
+		this.renderer = new THREE.WebGLRenderer( { antialias: true } );
+		this.renderer.setPixelRatio( window.devicePixelRatio );
+		this.renderer.setSize( sz.width, sz.height );
 
 		// The Controls
 		// Params: None. Just add the camera to controls
@@ -64,11 +71,6 @@ var Brain = function(divID, fnPlot, manifest_url) {
 			}
 		});
 	
-		// The Renderer
-		this.renderer = new THREE.WebGLRenderer( { antialias: true } );
-		this.renderer.setPixelRatio( window.devicePixelRatio );
-		this.renderer.setSize( sz[0], sz[1] );
-
 		// The spot in the HTML
 		this.container.appendChild( this.renderer.domElement );
 
@@ -87,11 +89,11 @@ var Brain = function(divID, fnPlot, manifest_url) {
 
 	// resizing function
 	this.onWindowResize = function() {
-		var sz = this.container_size();
-		this.camera.aspect = sz[1] / sz[0];
+		var sz = this.container.getBoundingClientRect();
+		this.camera.aspect = sz.height / sz.width;
 		this.camera.updateProjectionMatrix();
 
-		this.renderer.setSize( sz[0], sz[1] );
+		this.renderer.setSize( sz.width, sz.height );
 
 		this.controls.handleResize();
 	}
