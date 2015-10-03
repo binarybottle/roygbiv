@@ -1,0 +1,91 @@
+
+body {
+	font-family: Monospace;
+	background-color: #000;
+	color: #fff;
+	margin: 0px;
+	overflow: hidden;
+}
+#info {
+	color: #fff;
+	position: absolute;
+	top: 10px;
+	width: 100%;
+	text-align: center;
+	z-index: 100;
+	display:block;
+}
+#info a, .button { color: #f00; font-weight: bold; text-decoration: underline; cursor: pointer }
+
+.box {
+	font:10px sans-serif;
+}
+
+.box text {
+	fill:#fff;
+}
+
+.box line,.box rect,.box circle {
+	fill:#4682b4;
+	stroke:#fff;
+	stroke-width:1px;
+}
+
+.box .center {
+	stroke-dasharray:3,3;
+	fill:#fff;
+	stroke:#fff;
+}
+
+.box .outlier {
+	fill:none;
+	stroke:#fff;
+}
+
+.axis {
+	font:12px sans-serif;
+}
+
+.axis path,.axis line {
+	fill:none;
+	stroke:#fff;
+	shape-rendering:crispEdges;
+}
+
+.x.axis path {
+	fill:none;
+	stroke:#fff;
+	shape-rendering:crispEdges;
+}
+
+#header_n_label {
+	float: left;
+	left: 0px; 
+	margin: auto; 
+	text-align: center;
+}
+
+#nav_label {
+	background-color:#000;
+	opacity:0.5;
+	padding:10px;
+	text-align:left;
+	color:white;
+}
+
+#nav-brain {
+	float: right;
+	width: 400px;
+	height: 400px;
+	margin: 100px;
+}
+
+#plot-canvas {
+	float: left;
+	border: 2px solid #333;
+	width: 400px;
+	height: 300px;
+	padding: 10px;
+	margin: 30px 50px 70px 50px;
+}
+
