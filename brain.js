@@ -33,7 +33,6 @@ var Brain = function(divID, fnPlot) {
 			0.1,  // near
 			1e10 );  // far
 		this.camera.position.z = 200;
-		console.log(this.camera.position);
 
 		// The Controls
 		// Params: None. Just add the camera to controls
@@ -77,9 +76,7 @@ var Brain = function(divID, fnPlot) {
 		this.animate();
 	
 		window.addEventListener('click', function(e) {
-			console.log(ggg.divID);
 			if (e.shiftKey) {
-				//alert("shift+click")
 				mesh = ggg.selectMeshByMouse(e);
 				ggg.objectPick(mesh);
 			}
@@ -164,7 +161,6 @@ var Brain = function(divID, fnPlot) {
 			mesh.rotation.x = Math.PI * 0.5;
 			mesh.rotation.z = Math.PI * 1.5;
 
-			//console.log(mesh)
 			ggg.scene.add(mesh);
 			ggg.meshes.push(mesh)
 	

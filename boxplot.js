@@ -31,8 +31,7 @@ function do_boxplot(divID, mesh) {
 		max = -Infinity;
 
 	filename = "data/mindboggled/Twins-2-1/tables/left_exploded_tables/" + labelID + ".0.csv"
-	console.log(filename)
-
+	
 	d3.csv(filename, function(error, csv) {
 		$("svg").remove()
 		var data = [];
@@ -51,7 +50,7 @@ function do_boxplot(divID, mesh) {
 		data[2][1] = [];
 		data[3][1] = [];
 		data[4][1] = [];
-		console.log(csv)
+
 		csv.forEach(function(x) {
 			var v1 = Math.floor(x.travel_depth),
 				v2 = Math.floor(x.geodesic_depth),
@@ -71,9 +70,14 @@ function do_boxplot(divID, mesh) {
 
 		var chart = d3.box().whiskers(iqr(1.5)).height(height).domain([min, max]).showLabels(labels);
 
-		var svg = d3.select("#" + divID).append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).attr("class", "box").append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+		var svg = d3.select("#" + divID)
+			.append("svg")
+			.attr("width", width + margin.left + margin.right)
+			.attr("height", height + margin.top + margin.bottom)
+			.attr("class", "box")
+			.append("g")
+			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 		var x = d3.scale.ordinal().domain(data.map(function(d) {
-			console.log(d);
 			return d[0]
 		})).rangeRoundBands([0, width], 0.7, 0.3);
 
@@ -85,7 +89,6 @@ function do_boxplot(divID, mesh) {
 		svg.append("text").attr("x", (width / 2)).attr("y", 0 + (margin.top / 2)).attr("text-anchor", "middle").style("font-size", "18px").text("Shape distributions");
 		svg.append("g").attr("class", "x axis").attr("transform", "translate(0," + (height + margin.top + 10) + ")").call(xAxis).append("text").attr("x", (width / 2)).attr("y", 10).attr("dy", ".71em").style("text-anchor", "middle").style("font-size", "16px")
 		$("rect").css("fill", rgbColor)
-		console.log("set color?")
 	});
 
 	function iqr(k) {

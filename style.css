@@ -60,21 +60,32 @@ body {
 
 #header_n_label {
 	float: left;
-	left: 0px; margin: auto; right: 70%; width: 30%; text-align: center;
+	left: 0px; 
+	margin: auto; 
+	text-align: center;
 }
 
 #nav_label {
-	background-color:#000;opacity:0.5;padding:10px;text-align:left;color:white;
+	background-color:#000;
+	opacity:0.5;
+	padding:10px;
+	text-align:left;
+	color:white;
 }
 
 #nav-brain {
 	float: right;
-	background-color: green;
-	width: 500px;
-	height: 500px;
+	width: 400px;
+	height: 400px;
+	margin: 100px;
 }
 
 #plot-canvas {
-	width: 200px; height: 200px;
+	float: left;
+	border: 2px solid #333;
+	width: 400px;
+	height: 300px;
+	padding: 10px;
+	margin: 30px 50px 70px 50px;
 }
 
