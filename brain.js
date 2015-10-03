@@ -1,4 +1,5 @@
 var Brain = function(divID, fnPlot, manifest_url) {
+	var _this = this;
 	this.selectedLabel = null;
 	this.fnPlot = fnPlot;
 	this.divID = divID;
@@ -64,9 +65,14 @@ var Brain = function(divID, fnPlot, manifest_url) {
 			url: this.manifest_url,
 			data: function(data) {},
 			success: function(data, textStatus, jqXHR) {
-				var keys = Object.keys(data["filename"])
-				for (i=0;i<keys.length;i++){
-					ggg.loadMesh(data["filename"][keys[i]], keys[i]);
+				for (var key in data["filename"]) {
+					var color = ("colors" in data) ? data["colors"][key] : null;
+					var name = ("names" in data) ? data["names"][key] : null; 
+					
+					_this.loadMesh(data["filename"][key], {
+						name: name || key,
+						color: color || [Math.random(), Math.random(), Math.random()]
+					});
 				}
 			}
 		});
@@ -132,7 +138,7 @@ var Brain = function(divID, fnPlot, manifest_url) {
 		return controls
 	}
 
-	this.loadMesh = function(url, mesh_name) {
+	this.loadMesh = function(url, mesh_props) {
 		var ggg = this;
 
 		var oReq = new XMLHttpRequest();
@@ -145,27 +151,30 @@ var Brain = function(divID, fnPlot, manifest_url) {
 			geometry.__dirtyColors = true;
 		
 			material=new THREE.MeshLambertMaterial({vertexColors: THREE.FaceColors});
-			var color = [Math.random(), Math.random(), Math.random()]
 		  
+		  	var color = mesh_props.color || [Math.random(), Math.random(), Math.random()]
 			for (i=0;i<geometry.faces.length;i++){
 			  var face = geometry.faces[i];
 			  face.color.setHex( Math.random() * 0xffffff );
-			  face.color.setRGB(color[0],color[1],color[2]);
+			  face.color.setRGB(color[0], color[1], color[2]);
 	  
 			  //face.materials = [ new THREE.MeshBasicMaterial( { color: Math.random() * 0xffffff } ) ];
 			}
 			geometry.colorsNeedUpdate = true;
-			mesh = new THREE.Mesh(geometry, material);
+
+			var mesh = new THREE.Mesh(geometry, material);
 			mesh.dynamic = true;
+			mesh.rotation.y = Math.PI * 1.1;
+			mesh.rotation.x = Math.PI * 0.5;
+			mesh.rotation.z = Math.PI * 1.5;
+
+			var mesh_name = mesh_props.name;
 			if (mesh_name) {
 				mesh.name = mesh_name;
 			} else {
 				var tmp = url.split("_")
 				mesh.name = tmp[tmp.length-1].split(".vtk")[0]
 			}
-			mesh.rotation.y = Math.PI * 1.1;
-			mesh.rotation.x = Math.PI * 0.5;
-			mesh.rotation.z = Math.PI * 1.5;
 
 			ggg.scene.add(mesh);
 			ggg.meshes.push(mesh)
