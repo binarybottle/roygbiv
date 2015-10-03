@@ -89,3 +89,7 @@ body {
 	margin: 30px 50px 70px 50px;
 }
 
+#demo-links {
+	float: right;
+	margin: 10px;
+}

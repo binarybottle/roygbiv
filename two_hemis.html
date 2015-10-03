@@ -14,6 +14,12 @@ Design:
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link rel="stylesheet" type="text/css" href="style.css" />
+		<style>
+			#plot-canvas {
+				width: 200px;
+				height: 200px;
+			}
+		</style>
 
 		<script src="js/three.min.js"></script>
 		<script src="js/Projector.js"></script>
@@ -28,7 +34,7 @@ Design:
 		<script src="js/angular.min.js"></script>
 
 		<script src="brain.js"></script>
-		<script src="boxplot.js"></script>
+		<script src="hemiplot.js"></script>
 	</head>
 
 	<body>
@@ -44,7 +50,7 @@ Design:
 				<div id="plot-canvas">
 				</div>
 			</div>
-			<div id="demo-links">other demos: <a href="two_hemis.html">Two hemispheres</a></div>
+			<div id="demo-links">other demos: <a href="index.html">Box plot</a></div>
 			<div id="nav-brain">
 			</div>
 		</div>
@@ -58,10 +64,10 @@ Design:
 						$('#plot-canvas').innerHtml = "";
 					} else {
 						$scope.selectedLabel = mesh.name;
-						do_boxplot("plot-canvas", mesh);
+						do_hemiplot("plot-canvas", mesh, $scope.brain);
 					}
 					$scope.$apply();
-				});
+				}, "lh_files_to_load.json");
 			}]);
 		</script>
 	</body>

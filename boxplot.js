@@ -1,7 +1,11 @@
 function do_boxplot(divID, mesh) {
 	/* Draws a box plot, given the labelID, color */
 	console.log("doing boxplots")
- 
+
+ 	var div_dom = $("#" + divID);
+ 	div_dom.empty();
+ 	div_dom.html("loading...");
+ 	
 	labelID = mesh.name;
 	color = [mesh.geometry.faces[0].color["r"],
 			  mesh.geometry.faces[0].color["g"],
@@ -30,10 +34,11 @@ function do_boxplot(divID, mesh) {
 	var min = Infinity,
 		max = -Infinity;
 
-	filename = "data/mindboggled/Twins-2-1/tables/left_exploded_tables/" + labelID + ".0.csv"
+	var csvID = (Number(labelID) == 1) ? 999 : Number(labelID) + 999;
+	filename = "data/mindboggled/Twins-2-1/tables/left_exploded_tables/" + csvID + ".0.csv"
 	
 	d3.csv(filename, function(error, csv) {
-		$("svg").remove()
+		div_dom.empty();
 		var data = [];
 		data[0] = [];
 		data[1] = [];
