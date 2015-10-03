@@ -7,6 +7,8 @@ import glob
 import json
 import os
 
+import numpy as np
+
 import nibabel as nib
 from mindboggle.mio.vtks import (freesurfer_surface_to_vtk,
                                  freesurfer_annot_to_vtk, explode_scalars,
@@ -48,7 +50,8 @@ def freesurfer_annot_to_vtks(surface_file, label_file, output_stem='data/',
         if not os.path.exists(label_vtk):
             print_verbose('Converting data to vtk: %s' % label_file)
             freesurfer_annot_to_vtk(label_file, surface_vtk, label_vtk)
-        labels, _, names = nib.freesurfer.read_annot(label_file)
+        _, _, names = nib.freesurfer.read_annot(label_file)
+        labels = np.arange(len(names)) + 1
 
     # Expand the data file to multiple vtks
     print_verbose('Expanding vtk data to multiple files.')
