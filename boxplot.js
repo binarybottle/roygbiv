@@ -34,7 +34,8 @@ function do_boxplot(divID, mesh) {
 	var min = Infinity,
 		max = -Infinity;
 
-	filename = "data/mindboggled/Twins-2-1/tables/left_exploded_tables/" + labelID + ".0.csv"
+	var csvID = (Number(labelID) == 1) ? 999 : Number(labelID) + 999;
+	filename = "data/mindboggled/Twins-2-1/tables/left_exploded_tables/" + csvID + ".0.csv"
 	
 	d3.csv(filename, function(error, csv) {
 		div_dom.empty();
