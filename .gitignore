@@ -7,3 +7,4 @@ three.js
 img
 #js
 *.json
+*.pyc
