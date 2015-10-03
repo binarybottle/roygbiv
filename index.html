@@ -1,3 +1,12 @@
+<!--
+Design:
+	+ brain.js : service for showing a clickable, colored brain.
+	+ navigator.js : controller for the brain navigator
+	  => depends on brain.js
+	+ plotter.js : controller for the plotting
+	  => must be told what function to use to plot, in the constructor.
+	  => function may depend on brain.js, but controller does NOT
+-->
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -18,23 +27,41 @@
 		<script src="js/box.js"></script>
 		<script src="js/angular.min.js"></script>
 
-		<script src="bunny.js"></script>
+		<script src="brain.js"></script>
 		<script src="boxplot.js"></script>
 	</head>
 
-	<body ng-app="visApp" ng-controller = "visAppController">
-		<div id="header_n_label">
-			<h1>ROYGBIV</h1>
-			<div id="d3plot">
-				Shift+click on a label to see stats
-				<br>
-				<br>
-				Selected Label: {{selectedLabel}}
+	<body>
+		<div ng-app="navigator" ng-controller="NavigateController" ng-strict-di>
+			<div id="header_n_label">
+				<h1>ROYGBIV</h1>
+				<div id="nav_label">
+					Shift+click on a label to see stats
+					<br />
+					<br />
+					Selected Label: {{selectedLabel}}
+				</div>
+				<div id="plot-canvas">
+				</div>
+			</div>
+			<div id="nav-brain">
 			</div>
 		</div>
-		
+
 		<script>
-			var bunny_controller = new BunnyController("d3plot", do_boxplot);
+			angular.module('navigator', [])
+			.controller('NavigateController', ['$scope', function($scope) {
+				$scope.brain = Brain("nav-brain", function(mesh) {
+					if (!mesh) {
+						$scope.selectedLabel = "";
+						$('#plot-canvas').innerHtml = "";
+					} else {
+						$scope.selectedLabel = mesh.name;
+						do_boxplot("plot-canvas", mesh);
+					}
+					$scope.$apply();
+				});
+			}]);
 		</script>
 	</body>
 </html>

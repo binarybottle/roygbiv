@@ -59,11 +59,22 @@ body {
 }
 
 #header_n_label {
-	left: 0px; margin: auto; position: absolute; right: 70%; width: 30%; text-align: center;
+	float: left;
+	left: 0px; margin: auto; right: 70%; width: 30%; text-align: center;
 }
 
-#d3plot {
+#nav_label {
 	background-color:#000;opacity:0.5;padding:10px;text-align:left;color:white;
 }
 
+#nav-brain {
+	float: right;
+	background-color: green;
+	width: 500px;
+	height: 500px;
+}
+
+#plot-canvas {
+	width: 200px; height: 200px;
+}
 

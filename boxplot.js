@@ -1,7 +1,12 @@
-function do_boxplot(divID, labelID, color) {
+function do_boxplot(divID, mesh) {
 	/* Draws a box plot, given the labelID, color */
- 
 	console.log("doing boxplots")
+ 
+	labelID = mesh.name;
+	color = [mesh.geometry.faces[0].color["r"],
+			  mesh.geometry.faces[0].color["g"],
+			  mesh.geometry.faces[0].color["b"]];
+
 	var labels = true;
 	function componentToHex(c) {
 		var hex = c.toString(16);
