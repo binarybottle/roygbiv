@@ -3,7 +3,11 @@ To set up the demo:
 2. In your browser, open index.html.
 
 To change the brain parcels:
-1. Create your own parcel VTK files (not sure how ... YET!)
+1. Create your own parcel VTK files
+    a. Install vtk
+    b. Install mindboggle (`pip install git+https://github.com/binarybottle/mindboggle.git`)
+    c. Run `annot2vtks.py` on your desired freesurfer subject
+        * Use Freesurfer's `fsaverage` if you don't have your own data
 2. Upload your VTK parcels to some directory.
 3. Update `files_to_load.json` to point to your VTK parcels.
 
