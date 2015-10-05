@@ -51,7 +51,12 @@ def freesurfer_annot_to_vtks(surface_file, label_file, output_stem='data/',
             print_verbose('Converting data to vtk: %s' % label_file)
             freesurfer_annot_to_vtk(label_file, surface_vtk, label_vtk)
         labels, _, names = nib.freesurfer.read_annot(label_file)
-        labels = labels[labels >= 0]
+
+        used_labels = np.unique(labels[labels >= 1])
+        used_names = np.asarray(names)[used_labels]
+        print_verbose("Unused areas: %s" % (set(names) - set(used_names)))
+        names = used_names
+        labels = used_labels
 
     # Expand the data file to multiple vtks
     print_verbose('Expanding vtk data to multiple files.')
