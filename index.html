@@ -52,16 +52,20 @@ Design:
 		<script>
 			angular.module('navigator', [])
 			.controller('NavigateController', ['$scope', function($scope) {
-				$scope.brain = new Brain("nav-brain", function(mesh) {
-					if (!mesh) {
-						$scope.selectedLabel = "";
-						$('#plot-canvas').innerHtml = "";
-					} else {
-						$scope.selectedLabel = mesh.name;
-						do_boxplot("plot-canvas", mesh);
-					}
-					$scope.$apply();
-				});
+                $scope.brain = new Brain({
+                    divID: "nav-brain",
+                    callback: function(mesh) {
+                        if (!mesh) {
+                            $scope.selectedLabel = "";
+                            $('#plot-canvas').empty();
+                        } else {
+                            $scope.selectedLabel = mesh.name;
+                            do_boxplot("plot-canvas", mesh);
+                        }
+                        $scope.$apply();
+                    },
+                    manifest: 'files_to_load.json'
+                });
 			}]);
 		</script>
 	</body>

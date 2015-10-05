@@ -1,10 +1,12 @@
-var Brain = function(divID, fnPlot, manifest_url) {
+var Brain = function(kwargs) {
+	//divID, fnPlot, manifest_url
+
 	var _this = this;
 	this.selectedLabel = null;
-	this.fnPlot = fnPlot;
-	this.divID = divID;
-	this.manifest_url = (manifest_url) ? manifest_url : "files_to_load.json";
-	
+	this.fnPlot = kwargs.callback || null;
+	this.divID = kwargs.divID || 'brain';
+	this.manifest_url = kwargs.manifest || "files_to_load.json";
+
 	// Just to declare the parts up front...
 	this.camera = null;
 	this.container = null;
