@@ -1,19 +1,23 @@
-var Brain = function(divID, fnPlot, manifest_url) {
-	this.selectedLabel = null;
-	this.fnPlot = fnPlot;
-	this.divID = divID;
-	this.manifest_url = (manifest_url) ? manifest_url : "files_to_load.json";
-	
-	this.container_size = function() {
-		var container_pos = this.container.getBoundingClientRect();  // [top, left, right, bottom]
-		return [container_pos.width, container_pos.height];
-	};
+var Brain = function(kwargs) {
+	//divID, fnPlot, manifest_url
 
+	var _this = this;
+	this.selectedLabel = null;
+	this.fnPlot = kwargs.callback || null;
+	this.divID = kwargs.divID || 'brain';
+	this.manifest_url = kwargs.manifest || "files_to_load.json";
+
+	// Just to declare the parts up front...
+	this.camera = null;
+	this.container = null;
+	this.controls = null;
+	this.renderer = null;
+	this.scene = null;
+		
 	this.init = function() {
-		var ggg = this;  // hack to deal with embedded 'this' statements.
 
 		this.container = $('#' + this.divID)[0];
-		var sz = this.container_size();
+		var sz = this.container.getBoundingClientRect();
 
 		//Some important variables
 		this.meshes = []
@@ -30,10 +34,15 @@ var Brain = function(divID, fnPlot, manifest_url) {
 		// Params: x,y,z starting position
 		this.camera = new THREE.PerspectiveCamera(
 			60, // fov,
-			sz[1] / sz[0], // aspect ratio
+			sz.height / sz.width, // aspect ratio
 			0.1,  // near
 			1e10 );  // far
 		this.camera.position.z = 200;
+
+		// The Renderer
+		this.renderer = new THREE.WebGLRenderer( { antialias: true } );
+		this.renderer.setPixelRatio( window.devicePixelRatio );
+		this.renderer.setSize( sz.width, sz.height );
 
 		// The Controls
 		// Params: None. Just add the camera to controls
@@ -57,29 +66,29 @@ var Brain = function(divID, fnPlot, manifest_url) {
 			url: this.manifest_url,
 			data: function(data) {},
 			success: function(data, textStatus, jqXHR) {
-				var keys = Object.keys(data["filename"])
-				for (i=0;i<keys.length;i++){
-					ggg.loadMesh(data["filename"][keys[i]], keys[i]);
+				for (var key in data["filename"]) {
+					var color = ("colors" in data) ? data["colors"][key] : null;
+					var name = ("names" in data) ? data["names"][key] : null; 
+					
+					_this.loadMesh(data["filename"][key], {
+						name: name || key,
+						color: color || [Math.random(), Math.random(), Math.random()]
+					});
 				}
 			}
 		});
 	
-		// The Renderer
-		this.renderer = new THREE.WebGLRenderer( { antialias: true } );
-		this.renderer.setPixelRatio( window.devicePixelRatio );
-		this.renderer.setSize( sz[0], sz[1] );
-
 		// The spot in the HTML
 		this.container.appendChild( this.renderer.domElement );
 
 		// Interactive things - resizing windows, animate to rotate/zoom
-		window.addEventListener( 'resize', function(){ ggg.onWindowResize(); }, false );
+		window.addEventListener( 'resize', function(){ _this.onWindowResize(); }, false );
 		this.animate();
 	
 		this.container.addEventListener('click', function(e) {
 			if (e.shiftKey) {
-				mesh = ggg.selectMeshByMouse(e);
-				ggg.objectPick(mesh);
+				mesh = _this.selectMeshByMouse(e);
+				_this.objectPick(mesh);
 			}
 			return true;
 		});
@@ -87,19 +96,18 @@ var Brain = function(divID, fnPlot, manifest_url) {
 
 	// resizing function
 	this.onWindowResize = function() {
-		var sz = this.container_size();
-		this.camera.aspect = sz[1] / sz[0];
+		var sz = this.container.getBoundingClientRect();
+		this.camera.aspect = sz.height / sz.width;
 		this.camera.updateProjectionMatrix();
 
-		this.renderer.setSize( sz[0], sz[1] );
+		this.renderer.setSize( sz.width, sz.height );
 
 		this.controls.handleResize();
 	}
 	
 	//animation
 	this.animate = function() {
-		var ggg = this;
-		requestAnimationFrame( function() { ggg.animate(); });
+		requestAnimationFrame( function() { _this.animate(); });
 
 		this.controls.update();
 		this.renderer.render( this.scene, this.camera );
@@ -130,8 +138,7 @@ var Brain = function(divID, fnPlot, manifest_url) {
 		return controls
 	}
 
-	this.loadMesh = function(url, mesh_name) {
-		var ggg = this;
+	this.loadMesh = function(url, mesh_props) {
 
 		var oReq = new XMLHttpRequest();
 		oReq.open("GET", url, true);
@@ -143,30 +150,33 @@ var Brain = function(divID, fnPlot, manifest_url) {
 			geometry.__dirtyColors = true;
 		
 			material=new THREE.MeshLambertMaterial({vertexColors: THREE.FaceColors});
-			var color = [Math.random(), Math.random(), Math.random()]
 		  
+		  	var color = mesh_props.color || [Math.random(), Math.random(), Math.random()]
 			for (i=0;i<geometry.faces.length;i++){
 			  var face = geometry.faces[i];
 			  face.color.setHex( Math.random() * 0xffffff );
-			  face.color.setRGB(color[0],color[1],color[2]);
+			  face.color.setRGB(color[0], color[1], color[2]);
 	  
 			  //face.materials = [ new THREE.MeshBasicMaterial( { color: Math.random() * 0xffffff } ) ];
 			}
 			geometry.colorsNeedUpdate = true;
-			mesh = new THREE.Mesh(geometry, material);
+
+			var mesh = new THREE.Mesh(geometry, material);
 			mesh.dynamic = true;
+			mesh.rotation.y = Math.PI * 1.1;
+			mesh.rotation.x = Math.PI * 0.5;
+			mesh.rotation.z = Math.PI * 1.5;
+
+			var mesh_name = mesh_props.name;
 			if (mesh_name) {
 				mesh.name = mesh_name;
 			} else {
 				var tmp = url.split("_")
 				mesh.name = tmp[tmp.length-1].split(".vtk")[0]
 			}
-			mesh.rotation.y = Math.PI * 1.1;
-			mesh.rotation.x = Math.PI * 0.5;
-			mesh.rotation.z = Math.PI * 1.5;
 
-			ggg.scene.add(mesh);
-			ggg.meshes.push(mesh)
+			_this.scene.add(mesh);
+			_this.meshes.push(mesh)
 	
 		}
 		oReq.send();

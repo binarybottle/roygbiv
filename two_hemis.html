@@ -42,7 +42,7 @@ Design:
 			<div id="header_n_label">
 				<h1>ROYGBIV</h1>
 				<div id="nav_label">
-					Shift+click on a label to see stats
+					Shift+click on a label to highlight the area in the RH. 
 					<br />
 					<br />
 					Selected Label: {{selectedLabel}}
@@ -58,16 +58,19 @@ Design:
 		<script>
 			angular.module('navigator', [])
 			.controller('NavigateController', ['$scope', function($scope) {
-				$scope.brain = new Brain("nav-brain", function(mesh) {
-					if (!mesh) {
-						$scope.selectedLabel = "";
-						$('#plot-canvas').innerHtml = "";
-					} else {
-						$scope.selectedLabel = mesh.name;
-						do_hemiplot("plot-canvas", mesh, $scope.brain);
-					}
-					$scope.$apply();
-				}, "lh_files_to_load.json");
+                $scope.brain = new Brain({
+                    divID: "nav-brain",
+                    callback: function(mesh) {
+                        if (!mesh) {
+                            $scope.selectedLabel = "";
+                        } else {
+                            $scope.selectedLabel = mesh.name;
+                            do_hemiplot("plot-canvas", mesh);
+                        }
+                        $scope.$apply();
+                    },
+                    manifest: 'lh_files_to_load.json'
+                });
 			}]);
 		</script>
 	</body>
