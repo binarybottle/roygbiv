@@ -24,7 +24,7 @@ def atlas2aparc(atlas_name, hemi=None):
     return annot_file_template % (hemi if hemi else '%s')
 
 
-def dump_vtks(subject_path, atlas_name):
+def dump_vtks(subject_path, atlas_name, sample_rate=1, force=False):
     """ Convenience function to dump vtk parcels for each hemisphere."""
 
     all_data = dict(filename=dict())
@@ -35,7 +35,9 @@ def dump_vtks(subject_path, atlas_name):
         json_file = '%s_files_to_load.json' % hemi
         freesurfer_annot_to_vtks(surface_file, label_file,
                                  output_stem='data/%s_' % hemi,
-                                 json_file=json_file)
+                                 json_file=json_file,
+                                 sample_rate=sample_rate,
+                                 force=force)
         with open(json_file, 'rb') as fp:
             hemi_files = json.load(fp)['filename']
             for key, val in hemi_files.items():
@@ -52,4 +54,4 @@ if __name__ == '__main__':
     fsavg_path = os.path.join(subj_path, 'fsaverage')
 
     # Do both hemis and pass an atlas tag.
-    dump_vtks(fsavg_path, 'destrieux')
+    dump_vtks(fsavg_path, 'destrieux', sample_rate=0.1, force=False)
