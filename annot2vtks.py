@@ -51,7 +51,12 @@ def freesurfer_annot_to_vtks(surface_file, label_file, output_stem='data/',
             print_verbose('Converting data to vtk: %s' % label_file)
             freesurfer_annot_to_vtk(label_file, surface_vtk, label_vtk)
         labels, _, names = nib.freesurfer.read_annot(label_file)
-        labels = labels[labels >= 0]
+
+        used_labels = np.unique(labels[labels >= 1])
+        used_names = np.asarray(names)[used_labels]
+        print_verbose("Unused areas: %s" % (set(names) - set(used_names)))
+        names = used_names
+        labels = used_labels
 
     # Expand the data file to multiple vtks
     print_verbose('Expanding vtk data to multiple files.')
@@ -69,26 +74,6 @@ def freesurfer_annot_to_vtks(surface_file, label_file, output_stem='data/',
                          for lbl, name in zip(labels, names)])
         with open(json_file, 'wb') as fp:
             json.dump(dict(filename=vtk_dict), fp)
-
-
-def atlas2aparc(atlas_name, hemi=None):
-    """ Find freesurfer atlas aparc from atlas key.
-
-    Valid keys: desikan, destrieux, dkt
-
-    if `hemi` is specified, it a valid filename will be returned;
-    otherwise a format string will be returned."""
-
-    if atlas_name == 'desikan':
-        annot_file_template = '%s.aparc.annot'
-    elif atlas_name == 'destrieux':
-        annot_file_template = '%s.aparc.a2009s.annot'
-    elif atlas_name == 'dkt':
-        annot_file_template = '%s.aparc.annot'
-    else:
-        raise ValueError('Unknown atlas: %s' % atlas_name)
-
-    return annot_file_template % (hemi if hemi else '%s')
 
 
 if __name__ == '__main__':
