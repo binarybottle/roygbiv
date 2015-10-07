@@ -76,26 +76,6 @@ def freesurfer_annot_to_vtks(surface_file, label_file, output_stem='data/',
             json.dump(dict(filename=vtk_dict), fp)
 
 
-def atlas2aparc(atlas_name, hemi=None):
-    """ Find freesurfer atlas aparc from atlas key.
-
-    Valid keys: desikan, destrieux, dkt
-
-    if `hemi` is specified, it a valid filename will be returned;
-    otherwise a format string will be returned."""
-
-    if atlas_name == 'desikan':
-        annot_file_template = '%s.aparc.annot'
-    elif atlas_name == 'destrieux':
-        annot_file_template = '%s.aparc.a2009s.annot'
-    elif atlas_name == 'dkt':
-        annot_file_template = '%s.aparc.annot'
-    else:
-        raise ValueError('Unknown atlas: %s' % atlas_name)
-
-    return annot_file_template % (hemi if hemi else '%s')
-
-
 if __name__ == '__main__':
     subj_path = os.environ['SUBJECTS_DIR']
     fsavg_path = os.path.join(subj_path, 'fsaverage')
