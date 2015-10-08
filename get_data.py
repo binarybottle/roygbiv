@@ -1,9 +1,7 @@
 import os
 from argparse import ArgumentParser
 
-from roygbiv import HTML_DIR, DATA_DIR
-from roygbiv.annot2vtks import freesurfer_annot_to_vtks
-from roygbiv.two_hemis_data_generate import dump_vtks, atlas2aparc
+from roygbiv import freesurfer_annot_to_vtks, dump_vtks, atlas2aparc
 
 
 if __name__ == '__main__':
@@ -35,5 +33,4 @@ if __name__ == '__main__':
         label_file = os.path.join(fsavg_path, 'label', atlas2aparc(args['atlas'], args['hemi']))
         freesurfer_annot_to_vtks(surface_file=surface_file,
                                  label_file=label_file,
-                                 output_dir=DATA_DIR,
                                  sample_rate=float(args['sample_rate']))
