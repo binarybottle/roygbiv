@@ -34,7 +34,7 @@ def dump_vtks(subject_path, atlas_name, sample_rate=1, force=False):
                                   atlas2aparc(atlas_name, hemi=hemi))
         json_file = '%s_files_to_load.json' % hemi
         freesurfer_annot_to_vtks(surface_file, label_file,
-                                 output_stem='data/%s_' % hemi,
+                                 output_stem='%s_' % hemi,
                                  json_file=json_file,
                                  sample_rate=sample_rate,
                                  force=force)
@@ -47,11 +47,3 @@ def dump_vtks(subject_path, atlas_name, sample_rate=1, force=False):
     # Create a unified json file for lh/rh
     with open('files_to_load.json', 'wb') as fp:
         json.dump(all_data, fp)
-
-
-if __name__ == '__main__':
-    subj_path = os.environ['SUBJECTS_DIR']
-    fsavg_path = os.path.join(subj_path, 'fsaverage')
-
-    # Do both hemis and pass an atlas tag.
-    dump_vtks(fsavg_path, 'destrieux', sample_rate=0.1, force=False)
