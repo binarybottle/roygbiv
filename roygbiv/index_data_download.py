@@ -1,6 +1,8 @@
 import json
 import os
+import pandas
 import requests
+
 
 def download_file(url, filename=None, chunk_size=8192, force=False):
     if filename is None:
@@ -38,4 +40,17 @@ for k in dataset['filename']:
     label_id = os.path.basename(vtk_path)[len('freesurfer_curvature_'):-4]
     out_path = "data/mindboggled/Twins-2-1/tables/left_exploded_tables/" + label_id + ".0.csv"
     url = base_url + '/' + out_path
-    download_file (url, out_path)
+    download_file(url, out_path)
+
+    # Convert the data file to JSON
+    json_path = out_path.replace('.csv', '.json')
+    df = pandas.read_csv(out_path)
+    with open(json_path, 'wb') as fp:
+        df_dict = dict([(key, list(val)) for key, val in zip(df.keys(), df.values.T)])
+        # Stack data
+        data = dict(data=[], data_type=[])
+        for ki, (key, val) in enumerate(df_dict.items()):
+            data['data'] += val
+            data['data_type'] += [key] * len(val)
+
+        json.dump(data, fp)
