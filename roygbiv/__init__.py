@@ -34,6 +34,18 @@ def downsample_vtk(vtk_file, sample_rate):
     write_vtk(vtk_file, *vtk_data[:-2])
 
 
+def add_metadata(metadata, json_file='files_to_load.json',
+                 output_dir=DATA_DIR):
+    """Additional metadata to insert into the manifest file."""
+
+    json_filepath = os.path.join(output_dir, json_file)
+    with open(json_filepath, 'rb') as fp:
+        old_metadata = json.load(fp)
+    old_metadata.update(metadata)
+    with open(json_filepath, 'wb') as fp:
+        json.dump(old_metadata, fp)
+
+
 def freesurfer_annot_to_vtks(surface_file, label_file, output_stem='',
                              json_file='files_to_load.json',
                              sample_rate=1,
