@@ -5,6 +5,8 @@ import requests
 
 
 def download_file(url, filename=None, chunk_size=8192, force=False):
+    print url, filename
+
     if filename is None:
         filename = os.path.basename(url)
     base_dir = os.path.dirname(filename)
@@ -21,36 +23,49 @@ def download_file(url, filename=None, chunk_size=8192, force=False):
 
     return filename
 
-base_url = 'http://roygbiv.mindboggle.info'
+base_url = 'http://roygbiv.mindboggle.info/'
 
 # Download the file list, then read it.
-filename = download_file(base_url + '/files_to_load.json')
+in_path =  'files_to_load.json'
+url = base_url + in_path
+out_path = 'web/data/lh_' + in_path  # dump json inside 'data'
+will_download = not os.path.exists(out_path)
+filename = download_file(url, out_path)
 with open(filename, 'r') as fp:
     dataset = json.load(fp)
 
+# Munge urls in json
+if will_download:
+    for k, v in dataset['filename'].items():
+        dataset['filename'][k] = v[len('data/'):]  # Munge URLs
+    with open(filename, 'w') as fp:
+        json.dump(dataset, fp)
+
 # Download all vtk files.
 for k in dataset['filename']:
-    out_path = dataset['filename'][k]
-    url = base_url + '/' + out_path
+    in_path = 'data/' + dataset['filename'][k]
+    url = base_url + in_path
+    out_path = 'web/' + in_path
     download_file(url, out_path)
 
 # Download all extra data files.
 for k in dataset['filename']:
     vtk_path = dataset['filename'][k]
     label_id = os.path.basename(vtk_path)[len('freesurfer_curvature_'):-4]
-    out_path = "data/mindboggled/Twins-2-1/tables/left_exploded_tables/" + label_id + ".0.csv"
-    url = base_url + '/' + out_path
+    in_path = "data/mindboggled/Twins-2-1/tables/left_exploded_tables/" + label_id + ".0.csv"
+    url = base_url + in_path
+    out_path = 'web/' + in_path
     download_file(url, out_path)
 
     # Convert the data file to JSON
     json_path = out_path.replace('.csv', '.json')
-    df = pandas.read_csv(out_path)
-    with open(json_path, 'wb') as fp:
-        df_dict = dict([(key, list(val)) for key, val in zip(df.keys(), df.values.T)])
-        # Stack data
-        data = dict(data=[], data_type=[])
-        for ki, (key, val) in enumerate(df_dict.items()):
-            data['data'] += val
-            data['data_type'] += [key] * len(val)
-
-        json.dump(data, fp)
+    if not os.path.exists(json_path):
+        df = pandas.read_csv(out_path)
+        with open(json_path, 'wb') as fp:
+            df_dict = dict([(key, list(val)) for key, val in zip(df.keys(), df.values.T)])
+            # Stack data
+            data = dict(data=[], data_type=[])
+            for ki, (key, val) in enumerate(df_dict.items()):
+                data['data'] += val
+                data['data_type'] += [key] * len(val)
+            json.dump(data, fp)
