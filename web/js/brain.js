@@ -1,3 +1,7 @@
+function rnum(min, max) {
+	return Math.random() * (max - min) + min;
+}
+
 var Brain = function(kwargs) {
 	//divID, fnPlot, manifest_url
 
@@ -77,7 +81,7 @@ var Brain = function(kwargs) {
 
 					_this.loadMesh(mesh_url, {
 						name: name || key,
-						color: color || [Math.random(), Math.random(), Math.random()]
+						color: color || [rnum(0.25, 1.), rnum(0.25, 1.), rnum(0.25, 1.)]
 					});
 				}
 			}
@@ -144,7 +148,6 @@ var Brain = function(kwargs) {
 	}
 
 	this.loadMesh = function(url, mesh_props) {
-
 		var oReq = new XMLHttpRequest();
 		oReq.open("GET", url, true);
 		oReq.onload = function(oEvent) {
@@ -156,7 +159,7 @@ var Brain = function(kwargs) {
 		
 			material=new THREE.MeshLambertMaterial({vertexColors: THREE.FaceColors});
 		  
-		  	var color = mesh_props.color || [Math.random(), Math.random(), Math.random()]
+		  	var color = mesh_props.color || [rnum(0.25, 1.), rnum(0.25, 1.), rnum(0.25, 1.)]
 			for (i=0;i<geometry.faces.length;i++){
 			  var face = geometry.faces[i];
 			  face.color.setHex( Math.random() * 0xffffff );

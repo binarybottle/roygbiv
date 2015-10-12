@@ -5,7 +5,7 @@ for use with the roygbiv web tool.
 """
 import glob
 import os
-import simplejson
+import json
 
 import numpy as np
 
@@ -98,9 +98,12 @@ def freesurfer_annot_to_vtks(surface_file, label_file, output_stem='',
 
         vtk_dict = dict([(name, output_stem + '%s.vtk' % lbl)
                          for lbl, name in zip(labels, names)])
-        with open(os.path.join(output_dir, json_file), 'wb') as fp:
+
+        json_file = os.path.join(output_dir, json_file)
+        with open(json_file, 'wb') as fp:
             json.dump(dict(filename=vtk_dict), fp)
 
+    return json_file
 
 def atlas2aparc(atlas_name, hemi=None):
     """ Find freesurfer atlas aparc from atlas key.
@@ -122,20 +125,20 @@ def atlas2aparc(atlas_name, hemi=None):
     return annot_file_template % (hemi if hemi else '%s')
 
 
-def dump_vtks(subject_path, atlas_name, sample_rate=1, force=False):
+def dump_vtks(subject_path, atlas_name, sample_rate=1, surface='pial', force=False, output_dir=DATA_DIR):
     """ Convenience function to dump vtk parcels for each hemisphere."""
 
     all_data = dict(filename=dict())
     for hemi in ['lh', 'rh']:
-        surface_file = os.path.join(subject_path, 'surf', '%s.pial' % hemi)
+        surface_file = os.path.join(subject_path, 'surf', '%s.%s' % (hemi, surface))
         label_file = os.path.join(subject_path, 'label',
                                   atlas2aparc(atlas_name, hemi=hemi))
-        json_file = '%s_files_to_load.json' % hemi
-        freesurfer_annot_to_vtks(surface_file, label_file,
-                                 output_stem='%s_' % hemi,
-                                 json_file=json_file,
-                                 sample_rate=sample_rate,
-                                 force=force)
+        json_file = freesurfer_annot_to_vtks(surface_file, label_file,
+                                             output_stem='%s_' % hemi,
+                                             json_file='%s_files_to_load.json' % hemi,
+                                             sample_rate=sample_rate,
+                                             force=force,
+                                             output_dir=output_dir)
         with open(json_file, 'rb') as fp:
             hemi_files = json.load(fp)['filename']
             for key, val in hemi_files.items():

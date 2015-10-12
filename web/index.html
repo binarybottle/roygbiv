@@ -1,12 +1,3 @@
-<!--
-Design:
-	+ brain.js : service for showing a clickable, colored brain.
-	+ navigator.js : controller for the brain navigator
-	  => depends on brain.js
-	+ plotter.js : controller for the plotting
-	  => must be told what function to use to plot, in the constructor.
-	  => function may depend on brain.js, but controller does NOT
--->
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -64,7 +55,7 @@ Design:
                         }
                         $scope.$apply();
                     },
-                    manifest: 'files_to_load.json'
+                    manifest: 'data/lh_files_to_load.json'
                 });
 			}]);
 		</script>
