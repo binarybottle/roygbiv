@@ -63,13 +63,46 @@ var Brain = function(kwargs) {
 
 		// The Mesh
 		// Params: None for now... add to scene
-		//loadMesh("lh.pial.vtk",scene,meshes)
-		//loadVTK("lh.pial.vtk",scene,meshes)
+		this.loadBrain();
+
+		// The spot in the HTML
+		this.container.appendChild( this.renderer.domElement );
+		this.animate();
+
+		// Interactive things - resizing windows, animate to rotate/zoom
+		window.addEventListener( 'resize', function(){ _this.onWindowResize(); }, false );
+		this.container.addEventListener('click', function(e) {
+			if (e.shiftKey) {
+				mesh = _this.selectMeshByMouse(e);
+				_this.objectPick(mesh);
+			}
+			return true;
+		});
+	};
+
+	this.clearBrain = function() {
+		console.log('clearing brain');
+		for (var mi in this.meshes) {
+			var mesh = this.meshes[mi]
+			this.scene.children.pop(0);
+			this.meshes.pop(0);
+		}
+		this.scene.children = [this.scene.children[0]];
+		this.meshes = [];
+		console.log(this.scene.children.length, this.meshes.length);
+	}
+
+	this.loadBrain = function(manifest_url) {
+		var _this = this;
+		_this.manifest_url = manifest_url || _this.manifest_url
 
 		$.ajax({dataType: "json",
 			url: this.manifest_url,
 			data: function(data) {},
 			success: function(data, textStatus, jqXHR) {
+				_this.clearBrain();
+
+				console.log('loading brain');
 				for (var key in data["filename"]) {
 					var color = ("colors" in data) ? data["colors"][key] : null;
 					var name = ("names" in data) ? data["names"][key] : null;
@@ -85,22 +118,9 @@ var Brain = function(kwargs) {
 						value: value
 					});
 				}
-			}
-		});
-
-		// The spot in the HTML
-		this.container.appendChild( this.renderer.domElement );
-
-		// Interactive things - resizing windows, animate to rotate/zoom
-		window.addEventListener( 'resize', function(){ _this.onWindowResize(); }, false );
-		this.animate();
-
-		this.container.addEventListener('click', function(e) {
-			if (e.shiftKey) {
-				mesh = _this.selectMeshByMouse(e);
-				_this.objectPick(mesh);
-			}
-			return true;
+				console.log(data);
+			},
+			error: function(err) { alert('Load error'); }
 		});
 	};
 
