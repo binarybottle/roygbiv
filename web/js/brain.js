@@ -72,10 +72,11 @@ var Brain = function(kwargs) {
 		// Interactive things - resizing windows, animate to rotate/zoom
 		window.addEventListener( 'resize', function(){ _this.onWindowResize(); }, false );
 		this.container.addEventListener('click', function(e) {
-			if (e.shiftKey) {
-				mesh = _this.selectMeshByMouse(e);
-				_this.objectPick(mesh);
-			}
+			if (!e.shiftKey)
+				return false;
+
+			mesh = _this.selectMeshByMouse(e);
+			_this.objectPick(mesh);
 			return true;
 		});
 	};
