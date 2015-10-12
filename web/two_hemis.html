@@ -42,12 +42,16 @@ Design:
 			<div id="header_n_label">
 				<h1>ROYGBIV</h1>
 				<div id="nav_label">
-					Shift+click on a label to highlight the area in the RH. 
+					Shift+click on a label to highlight the area in the RH.
 					<br />
 					<br />
-					Selected Label: {{selectedLabel}}
+					Selected Label:
+					<span ng-if="mesh.name">{{ mesh.name }}</span>
+					<span ng-if="mesh">
+						{{ mesh.value.0 | number:4}}
+					</span>
 				</div>
-				<div id="plot-canvas">
+				<div id="plot-canvas" ng-if="mesh">
 				</div>
 			</div>
 			<div id="demo-links">other demos: <a href="index.html">Box plot</a></div>
@@ -61,13 +65,11 @@ Design:
                 $scope.brain = new Brain({
                     divID: "nav-brain",
                     callback: function(mesh) {
-                        if (!mesh) {
-                            $scope.selectedLabel = "";
-                        } else {
-                            $scope.selectedLabel = mesh.name;
+                    	$scope.mesh = mesh;
+                        $scope.$apply();
+                        if (mesh) {
                             do_hemiplot("plot-canvas", mesh);
                         }
-                        $scope.$apply();
                     },
                     manifest: 'data/lh_files_to_load.json'
                 });

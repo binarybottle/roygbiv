@@ -65,14 +65,14 @@ var Brain = function(kwargs) {
 		// Params: None for now... add to scene
 		//loadMesh("lh.pial.vtk",scene,meshes)
 		//loadVTK("lh.pial.vtk",scene,meshes)
-	
+
 		$.ajax({dataType: "json",
 			url: this.manifest_url,
 			data: function(data) {},
 			success: function(data, textStatus, jqXHR) {
 				for (var key in data["filename"]) {
 					var color = ("colors" in data) ? data["colors"][key] : null;
-					var name = ("names" in data) ? data["names"][key] : null; 
+					var name = ("names" in data) ? data["names"][key] : null;
 					var mesh_url = data["filename"][key];
 
 					if (mesh_url[0] != '/') {  // relative path is relative to manifest
@@ -81,19 +81,20 @@ var Brain = function(kwargs) {
 
 					_this.loadMesh(mesh_url, {
 						name: name || key,
-						color: color || [rnum(0.25, 1.), rnum(0.25, 1.), rnum(0.25, 1.)]
+						color: color || [rnum(0.25, 1.), rnum(0.25, 1.), rnum(0.25, 1.)],
+						value: value
 					});
 				}
 			}
 		});
-	
+
 		// The spot in the HTML
 		this.container.appendChild( this.renderer.domElement );
 
 		// Interactive things - resizing windows, animate to rotate/zoom
 		window.addEventListener( 'resize', function(){ _this.onWindowResize(); }, false );
 		this.animate();
-	
+
 		this.container.addEventListener('click', function(e) {
 			if (e.shiftKey) {
 				mesh = _this.selectMeshByMouse(e);
@@ -176,6 +177,9 @@ var Brain = function(kwargs) {
 			mesh.rotation.z = Math.PI * 1.5;
 
 			var mesh_name = mesh_props.name;
+			for (var k in mesh_props) {
+				mesh[k] = mesh_props[k];
+			}
 			if (mesh_name) {
 				mesh.name = mesh_name;
 			} else {
