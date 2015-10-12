@@ -10,10 +10,6 @@ import json
 import numpy as np
 
 import nibabel as nib
-from mindboggle.mio.vtks import (freesurfer_surface_to_vtk,
-                                 freesurfer_annot_to_vtk, explode_scalars,
-                                 read_vtk, write_vtk)
-from mindboggle.guts.mesh import decimate_file
 
 
 HTML_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'web'))
@@ -22,6 +18,8 @@ DATA_DIR = os.path.join(HTML_DIR, 'data')
 
 def downsample_vtk(vtk_file, sample_rate):
     """Sample rate: number between 0 and 1."""
+    from mindboggle.mio.vtks import read_vtk, write_vtk
+    from mindboggle.guts.mesh import decimate_file
 
     if (sample_rate < 0 or sample_rate > 1):
         raise ValueError('0 <= sample_rate <= 1; you input %f' % sample_rate)
@@ -32,6 +30,18 @@ def downsample_vtk(vtk_file, sample_rate):
     # Hack to re-save in
     vtk_data = read_vtk(vtk_file)
     write_vtk(vtk_file, *vtk_data[:-2])
+
+
+def add_metadata(metadata, json_file='files_to_load.json',
+                 output_dir=DATA_DIR):
+    """Additional metadata to insert into the manifest file."""
+
+    json_filepath = os.path.join(output_dir, json_file)
+    with open(json_filepath, 'rb') as fp:
+        old_metadata = json.load(fp)
+    old_metadata.update(metadata)
+    with open(json_filepath, 'wb') as fp:
+        json.dump(old_metadata, fp)
 
 
 def freesurfer_annot_to_vtks(surface_file, label_file, output_stem='',
@@ -60,6 +70,7 @@ def freesurfer_annot_to_vtks(surface_file, label_file, output_stem='',
                                    os.path.basename(surface_file) + '.vtk')
         if force or not os.path.exists(surface_vtk):
             print_verbose('Converting surface to vtk: %s' % surface_file)
+            from mindboggle.mio.vtks import freesurfer_surface_to_vtk
             freesurfer_surface_to_vtk(surface_file, surface_vtk)
 
     # Convert the data file to vtk
@@ -71,6 +82,7 @@ def freesurfer_annot_to_vtks(surface_file, label_file, output_stem='',
                                  os.path.basename(label_file) + '.vtk')
         if force or not os.path.exists(label_vtk):
             print_verbose('Converting data to vtk: %s' % label_file)
+            from mindboggle.mio.vtks import freesurfer_annot_to_vtk
             freesurfer_annot_to_vtk(label_file, surface_vtk, label_vtk)
         labels, _, names = nib.freesurfer.read_annot(label_file)
 
@@ -82,6 +94,7 @@ def freesurfer_annot_to_vtks(surface_file, label_file, output_stem='',
 
     # Expand the data file to multiple vtks
     print_verbose('Expanding vtk data to multiple files.')
+    from mindboggle.mio.vtks import explode_scalars
     explode_output_stem = os.path.join(output_dir, output_stem)
     explode_scalars(label_vtk, output_stem=explode_output_stem)
     output_vtks = filter(lambda p: p not in [surface_vtk, label_vtk],

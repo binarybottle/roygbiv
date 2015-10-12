@@ -74,16 +74,16 @@ body {
 
 #nav-brain {
 	float: right;
-	width: 400px;
-	height: 400px;
-	margin: 100px;
+	width: 600px;
+	height: 600px;
+	margin: 0px;
 }
 
 #plot-canvas {
 	float: left;
 	border: 2px solid #333;
-	width: 400px;
-	height: 300px;
+	width: 200px;
+	height: 100px;
 	padding: 10px;
 	margin: 30px 50px 70px 50px;
 }

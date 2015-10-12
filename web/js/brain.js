@@ -17,7 +17,7 @@ var Brain = function(kwargs) {
 	this.controls = null;
 	this.renderer = null;
 	this.scene = null;
-		
+
 	this.init = function() {
 
 		this.container = $('#' + this.divID)[0];
@@ -113,7 +113,7 @@ var Brain = function(kwargs) {
 
 		this.controls.handleResize();
 	}
-	
+
 	//animation
 	this.animate = function() {
 		requestAnimationFrame( function() { _this.animate(); });
@@ -156,15 +156,15 @@ var Brain = function(kwargs) {
 			geometry.computeFaceNormals();
 			geometry.computeVertexNormals();
 			geometry.__dirtyColors = true;
-		
+
 			material=new THREE.MeshLambertMaterial({vertexColors: THREE.FaceColors});
-		  
+
 		  	var color = mesh_props.color || [rnum(0.25, 1.), rnum(0.25, 1.), rnum(0.25, 1.)]
-			for (i=0;i<geometry.faces.length;i++){
+			for (var i=0;i<geometry.faces.length;i++){
 			  var face = geometry.faces[i];
 			  face.color.setHex( Math.random() * 0xffffff );
 			  face.color.setRGB(color[0], color[1], color[2]);
-	  
+
 			  //face.materials = [ new THREE.MeshBasicMaterial( { color: Math.random() * 0xffffff } ) ];
 			}
 			geometry.colorsNeedUpdate = true;
@@ -185,7 +185,7 @@ var Brain = function(kwargs) {
 
 			_this.scene.add(mesh);
 			_this.meshes.push(mesh)
-	
+
 		}
 		oReq.send();
 	}
@@ -196,12 +196,12 @@ var Brain = function(kwargs) {
 		var raycaster = new THREE.Raycaster();
 		var mouse = new THREE.Vector2();
 		var cpos = this.renderer.domElement.getBoundingClientRect();  // [top, left, right, bottom]
-	
+
 		// First, figure out if a parcel was clicked.
 		mouse.x = ( 2 * (e.clientX - cpos.left) / (cpos.width) ) - 1;
 		mouse.y = ( 2 * (cpos.top - e.clientY) / (cpos.height) ) + 1;
-	
-		raycaster.setFromCamera(mouse, this.camera);	
+
+		raycaster.setFromCamera(mouse, this.camera);
 		var intersects = raycaster.intersectObjects( this.scene.children );
 
 		if (intersects.length == 0) {
@@ -232,7 +232,7 @@ var Brain = function(kwargs) {
 			picked_mesh.material.transparent = true;
 			picked_mesh.material.opacity = 1;
 
-			// Decrease opacity for all other parcels			
+			// Decrease opacity for all other parcels
 			for (i=0;i<this.meshes.length;i++){
 				if (this.meshes[i].name != picked_mesh.name){
 					this.meshes[i].material.transparent = true;
