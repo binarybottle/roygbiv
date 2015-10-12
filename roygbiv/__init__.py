@@ -4,8 +4,8 @@ Freesurfer annot files to a set of VTKs (and manifest file)
 for use with the roygbiv web tool.
 """
 import glob
-import json
 import os
+import simplejson
 
 import numpy as np
 
@@ -14,6 +14,10 @@ from mindboggle.mio.vtks import (freesurfer_surface_to_vtk,
                                  freesurfer_annot_to_vtk, explode_scalars,
                                  read_vtk, write_vtk)
 from mindboggle.guts.mesh import decimate_file
+
+
+HTML_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'web'))
+DATA_DIR = os.path.join(HTML_DIR, 'data')
 
 
 def downsample_vtk(vtk_file, sample_rate):
@@ -25,13 +29,15 @@ def downsample_vtk(vtk_file, sample_rate):
     # Downsample
     decimate_file(vtk_file, reduction=1 - sample_rate, output_vtk=vtk_file, save_vtk=True, smooth_steps=0)
 
-    # Hack to re-save in 
+    # Hack to re-save in
     vtk_data = read_vtk(vtk_file)
     write_vtk(vtk_file, *vtk_data[:-2])
 
-def freesurfer_annot_to_vtks(surface_file, label_file, output_stem='data/',
-                             json_file='files_to_load.json', sample_rate=1,
-                             force=False, verbose=True):
+
+def freesurfer_annot_to_vtks(surface_file, label_file, output_stem='',
+                             json_file='files_to_load.json',
+                             sample_rate=1,
+                             force=False, verbose=True, output_dir=DATA_DIR):
     """ Splits a surface file into vtk files based on regions in the label file.
     """
     def print_verbose(*args):
@@ -39,10 +45,11 @@ def freesurfer_annot_to_vtks(surface_file, label_file, output_stem='data/',
         if verbose:
             print(args)
 
-    vtk_dir = os.path.join(os.getcwd(), os.path.dirname(output_stem))
+    #
+    vtk_dir = os.path.join(output_dir, os.path.dirname(output_stem))
 
     # Make the output directory
-    if not os.path.exists(vtk_dir):
+    if not os.path.exists(output_dir):
         os.makedirs(vtk_dir)
 
     # Convert the surface file to vtk
@@ -75,9 +82,10 @@ def freesurfer_annot_to_vtks(surface_file, label_file, output_stem='data/',
 
     # Expand the data file to multiple vtks
     print_verbose('Expanding vtk data to multiple files.')
-    explode_scalars(label_vtk, output_stem=output_stem)
+    explode_output_stem = os.path.join(output_dir, output_stem)
+    explode_scalars(label_vtk, output_stem=explode_output_stem)
     output_vtks = filter(lambda p: p not in [surface_vtk, label_vtk],
-                         glob.glob(output_stem + '*.vtk'))
+                         glob.glob(explode_output_stem + '*.vtk'))
 
     print_verbose('Downsampling vtk files.')
     for vtk_file in output_vtks:
@@ -90,18 +98,50 @@ def freesurfer_annot_to_vtks(surface_file, label_file, output_stem='data/',
 
         vtk_dict = dict([(name, output_stem + '%s.vtk' % lbl)
                          for lbl, name in zip(labels, names)])
-        with open(json_file, 'wb') as fp:
+        with open(os.path.join(output_dir, json_file), 'wb') as fp:
             json.dump(dict(filename=vtk_dict), fp)
 
 
-if __name__ == '__main__':
-    subj_path = os.environ['SUBJECTS_DIR']
-    fsavg_path = os.path.join(subj_path, 'fsaverage')
+def atlas2aparc(atlas_name, hemi=None):
+    """ Find freesurfer atlas aparc from atlas key.
 
-    surface_file = os.path.join(fsavg_path, 'surf', 'lh.pial')
-    label_file = os.path.join(fsavg_path, 'label', 'lh.aparc.annot')
-    freesurfer_annot_to_vtks(surface_file=surface_file,
-                             label_file=label_file,
-                             output_stem='data/',
-                             sample_rate=0.25,
-                             force=False)
+    Valid keys: desikan, destrieux, dkt
+
+    if `hemi` is specified, it a valid filename will be returned;
+    otherwise a format string will be returned."""
+
+    if atlas_name == 'desikan':
+        annot_file_template = '%s.aparc.annot'
+    elif atlas_name == 'destrieux':
+        annot_file_template = '%s.aparc.a2009s.annot'
+    elif atlas_name == 'dkt':
+        annot_file_template = '%s.aparc.DKTatlas40.annot'
+    else:
+        raise ValueError('Unknown atlas: %s' % atlas_name)
+
+    return annot_file_template % (hemi if hemi else '%s')
+
+
+def dump_vtks(subject_path, atlas_name, sample_rate=1, force=False):
+    """ Convenience function to dump vtk parcels for each hemisphere."""
+
+    all_data = dict(filename=dict())
+    for hemi in ['lh', 'rh']:
+        surface_file = os.path.join(subject_path, 'surf', '%s.pial' % hemi)
+        label_file = os.path.join(subject_path, 'label',
+                                  atlas2aparc(atlas_name, hemi=hemi))
+        json_file = '%s_files_to_load.json' % hemi
+        freesurfer_annot_to_vtks(surface_file, label_file,
+                                 output_stem='%s_' % hemi,
+                                 json_file=json_file,
+                                 sample_rate=sample_rate,
+                                 force=force)
+        with open(json_file, 'rb') as fp:
+            hemi_files = json.load(fp)['filename']
+            for key, val in hemi_files.items():
+                hemi_key = '%s_%s' % (hemi, key)
+                all_data['filename'][hemi_key] = val
+
+    # Create a unified json file for lh/rh
+    with open('files_to_load.json', 'wb') as fp:
+        json.dump(all_data, fp)
