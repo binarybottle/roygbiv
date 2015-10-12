@@ -34,10 +34,7 @@ def downsample_vtk(vtk_file, sample_rate):
 
 def add_metadata(metadata, json_file='files_to_load.json',
                  output_dir=DATA_DIR):
-<<<<<<< HEAD
     """Additional metadata to insert into the manifest file."""
-=======
->>>>>>> 6942517... fix: move vtk-related imports into functions (vtk is a fat dependency).
 
     json_filepath = os.path.join(output_dir, json_file)
     with open(json_filepath, 'rb') as fp:
