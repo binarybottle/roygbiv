@@ -70,17 +70,36 @@ Design:
     		</div>
         </div>
 		<script>
+            var prefixes = {
+                desikan: { area: 'MRI_cort_area.ctx.', thickness: 'MRI_cort_thick.ctx.'},
+                destrieux: { area: 'Destrieux_area.', thickness: 'Destrieux_thickness.'}
+            }
+
+            function prefix2measure(prefix) {
+                for (var ai in prefixes) {
+                    for (var mi in prefixes[ai]) {
+                        if (prefixes[ai][mi] == prefix)
+                            return mi
                     }
+                }
+            }
+
+            function measure2prefix(measure, atlas) {
+                return prefixes[atlas][measure]
+            }
 
 
             var app = angular.module('navigator', []);
 			app.controller('NavigateController', ['$scope', function($scope) {
+				// Object bound to the form. We "watch" this object below.
+                var url_parts = document.location.pathname.split('/');
+                var prefix_idx = url_parts.length - 2;
 				$scope.metadata = {
-					measure: 'thickness',
-					atlas: 'destrieux',
-					surf_type: 'pial',
-					subject: 'fsaverage',
-					prefix: 'Destrieux_area.'
+                    subject: url_parts[prefix_idx - 3] || 'fsaverage',
+                    atlas: url_parts[prefix_idx - 2] || 'destrieux',
+					surf_type: url_parts[prefix_idx - 1] || 'pial',
+					prefix: url_parts[prefix_idx] || 'Destrieux_area.',
+                    measure: prefix2measure(url_parts[prefix_idx]  || 'Destrieux_area.')
 				};
 				$scope.manifest_url = 'data/lh_files_to_load.json';
 
@@ -110,17 +129,15 @@ Design:
 
                 // Use the relatively new watchCollection().
                 $scope.$watchCollection("metadata", function( newValue, oldValue ) {
-					var prefixes = {
-						desikan: { area: 'MRI_cort_area.ctx.', thickness: 'MRI_cort_thick.ctx.'},
-						destrieux: { area: 'Destrieux_area.', thickness: 'Destrieux_thickness.'}
-					}
-					$scope.metadata.prefix = prefixes[newValue.atlas][newValue.measure];
+					$scope.metadata.prefix = measure2prefix(newValue.measure, newValue.atlas);
 					var base_url = 'http://127.0.0.1:5000/' + $scope.metadata.subject + '/'
 								    + $scope.metadata.atlas + '/' + $scope.metadata.surf_type + '/'
 								    + $scope.metadata.prefix + '/';
 					var manifest_url = base_url + 'data/lh_files_to_load.json';
+
 					if (manifest_url != $scope.manifest_url) {
 						$scope.manifest_url = manifest_url;
+
 						// Update the brains
 						if ($scope.nav_brain)
 							$scope.nav_brain.loadBrain($scope.manifest_url);
@@ -128,9 +145,6 @@ Design:
 							$scope.stats_brain.loadBrain($scope.manifest_url.replace('lh', 'rh'));
 					}
 				});
-
-
-
 			}]);
 		</script>
 	</body>
