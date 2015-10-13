@@ -37,14 +37,14 @@ var Brain = function(kwargs) {
 		// The Camera
 		// Params: x,y,z starting position
 		this.camera = new THREE.PerspectiveCamera(
-			60, // fov,
-			sz.height / sz.width, // aspect ratio
+			50, // fov,
+			sz.width/sz.height, // aspect ratio
 			0.1,  // near
 			1e10 );  // far
 		this.camera.position.z = 200;
 
 		// The Renderer
-		this.renderer = new THREE.WebGLRenderer( { antialias: true } );
+		this.renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
 		this.renderer.setPixelRatio( window.devicePixelRatio );
 		this.renderer.setSize( sz.width, sz.height );
 
@@ -128,7 +128,7 @@ var Brain = function(kwargs) {
 	// resizing function
 	this.onWindowResize = function() {
 		var sz = this.container.getBoundingClientRect();
-		this.camera.aspect = sz.height / sz.width;
+		this.camera.aspect = sz.width / sz.height;
 		this.camera.updateProjectionMatrix();
 
 		this.renderer.setSize( sz.width, sz.height );
