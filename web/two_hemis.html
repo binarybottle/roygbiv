@@ -40,7 +40,7 @@ Design:
 					Selected Label:
 					<span ng-if="mesh.name">{{ mesh.name }}</span>
 					<span ng-if="mesh">
-						{{ mesh.value.0 | number:4}}
+						{{ mesh.value.0 * 100 | number: 2 }}%
 					</span>
 				</div>
 				<div id="plot-canvas">

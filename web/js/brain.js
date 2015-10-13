@@ -107,6 +107,7 @@ var Brain = function(kwargs) {
 				for (var key in data["filename"]) {
 					var color = ("colors" in data) ? data["colors"][key] : null;
 					var name = ("names" in data) ? data["names"][key] : null;
+					var value = ("values" in data) ? data["values"][key] : null;
 					var mesh_url = data["filename"][key];
 
 					if (mesh_url[0] != '/') {  // relative path is relative to manifest
