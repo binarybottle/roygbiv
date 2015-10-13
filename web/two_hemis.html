@@ -84,19 +84,30 @@ Design:
 				};
 				$scope.manifest_url = 'data/lh_files_to_load.json';
 
-                $scope.brain = new Brain({
+				// Create the right hemi brain
+				$scope.stats_brain = null;
+
+				// Create the "brain" for navigation
+                $scope.nav_brain = new Brain({
                     divID: "nav-brain",
+                    manifest: $scope.manifest_url,
                     callback: function(mesh) {
                     	$scope.mesh = mesh;
                         $scope.$apply();
                         if (mesh) {
-                            do_hemiplot("plot-canvas", mesh);
+                        	// On click, select the same mesh in the "stats" brain.
+                        	if (!$scope.stats_brain)
+	                        	$scope.stats_brain = new Brain({
+	                        		divID: "plot-canvas",
+	                        		manifest: $scope.manifest_url.replace('lh', 'rh')
+	                        	});
+							var stats_mesh = $scope.stats_brain.selectMeshByName(mesh.name);
+							$scope.stats_brain.objectPick(stats_mesh);
                         }
-                    },
-                    manifest: $scope.manifest_url
+                    }
                 });
-                window.$scope = $scope;
-                window.brain = $scope.brain;
+                window.brain = $scope.nav_brain;
+
                 // Use the relatively new watchCollection().
                 $scope.$watchCollection("metadata", function( newValue, oldValue ) {
 					var prefixes = {
@@ -110,8 +121,11 @@ Design:
 					var manifest_url = base_url + 'data/lh_files_to_load.json';
 					if (manifest_url != $scope.manifest_url) {
 						$scope.manifest_url = manifest_url;
-						// Update the brain
-						$scope.brain.loadBrain($scope.manifest_url);
+						// Update the brains
+						if ($scope.nav_brain)
+							$scope.nav_brain.loadBrain($scope.manifest_url);
+						if ($scope.stats_brain)
+							$scope.stats_brain.loadBrain($scope.manifest_url.replace('lh', 'rh'));
 					}
 				});
 
