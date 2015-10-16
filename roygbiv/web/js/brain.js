@@ -10,6 +10,7 @@ var Brain = function(kwargs) {
 	this.fnPlot = kwargs.callback || null;
 	this.divID = kwargs.divID || 'brain';
 	this.manifest_url = kwargs.manifest || "files_to_load.json";
+	this.view = kwargs.view || {};  // allow overriding fov, near, far, etc
 
 	// Just to declare the parts up front...
 	this.camera = null;
@@ -37,11 +38,11 @@ var Brain = function(kwargs) {
 		// The Camera
 		// Params: x,y,z starting position
 		this.camera = new THREE.PerspectiveCamera(
-			50, // fov,
-			sz.width/sz.height, // aspect ratio
-			0.1,  // near
-			1e10 );  // far
-		this.camera.position.z = 200;
+			this.view.fov || 50, // fov,
+			this.view.aspect_ratio || sz.width/sz.height, // aspect ratio
+			this.view.near || 0.1,  // near
+			this.view.far || 1e10 );  // far
+		this.camera.position.z = this.view.zpos || 200;
 
 		// The Renderer
 		this.renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
