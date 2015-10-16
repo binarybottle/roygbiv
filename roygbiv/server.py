@@ -6,12 +6,12 @@ from flask import Flask, request, send_from_directory
 _cur_dir = os.path.abspath(os.path.dirname(__file__))
 
 
-def make_server(web_dir=os.path.join(_cur_dir, '..', 'web'),
-                data_dir=os.path.join(_cur_dir, '..', 'web', 'data')):
+def make_server(web_dir=os.path.join(_cur_dir, 'web'),
+                data_dir=os.path.join(_cur_dir, '..', 'data')):
 
     app = Flask(__name__)
 
-    @app.route('/<path:dataset>/<path:atlas>/<path:surface>/data/<path:path>')
+    @app.route('/data/<path:dataset>/<path:atlas>/<path:surface>/<path:path>')
     def send_data_specific(dataset, atlas, surface, path):
         cur_dir = os.path.join(data_dir, dataset, atlas, surface)
         return send_from_directory(cur_dir, path)
@@ -38,8 +38,8 @@ def make_server(web_dir=os.path.join(_cur_dir, '..', 'web'),
     return app
 
 
-def launch_server(web_dir=os.path.join(_cur_dir, '..', 'web'),
-                  data_dir=os.path.join(_cur_dir, '..', 'web', 'data'),
+def launch_server(web_dir=os.path.join(_cur_dir, 'web'),
+                  data_dir=os.path.join(_cur_dir, '..', 'data'),
                   debug=False):
     app = make_server(web_dir=web_dir, data_dir=data_dir)
     app.debug = debug
