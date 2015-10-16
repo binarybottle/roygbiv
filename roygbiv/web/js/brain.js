@@ -252,24 +252,12 @@ var Brain = function(kwargs) {
 	}
 
 	this.objectPick = function(picked_mesh) {
-		if (picked_mesh === null) {
-			// No object was chosen; reset all parcels to fully visible.
-			for (i=0;i<this.meshes.length;i++) {
-				this.meshes[i].material.transparent = true;
-				this.meshes[i].material.opacity = 1;
-			}
-		} else {
-			picked_mesh.material.transparent = true;
-			picked_mesh.material.opacity = 1;
+		// Decrease opacity for all other parcels
+		for (i=0; i<this.meshes.length; i++)
+			_this.meshes[i].material.opacity = picked_mesh ? 0.4 : 1;
 
-			// Decrease opacity for all other parcels
-			for (i=0;i<this.meshes.length;i++){
-				if (this.meshes[i].name != picked_mesh.name){
-					this.meshes[i].material.transparent = true;
-					this.meshes[i].material.opacity = 0.4;
-				}
-			}
-		}
+		if (picked_mesh)
+			picked_mesh.material.opacity = 1;
 
 		if (_this.cur_picked != picked_mesh && t) {
 			_this.cur_picked = picked_mesh;
