@@ -83,6 +83,13 @@ var Brain = function(kwargs) {
 			_this.objectPick(mesh);
 			return true;
 		});
+		this.container.addEventListener('mousemove', function(e) {
+			if (!e.shiftKey)
+				return false;
+
+			mesh = _this.selectMeshByMouse(e);
+			_this.objectPick(mesh);
+		})
 	};
 
 	this.removeMesh = function(mesh) {
