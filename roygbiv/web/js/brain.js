@@ -19,6 +19,9 @@ var Brain = function(kwargs) {
 	this.renderer = null;
 	this.scene = null;
 
+	// state variables
+	this.cur_picked = null;
+
 	this.init = function() {
 
 		this.container = $('#' + this.divID)[0];
@@ -268,8 +271,10 @@ var Brain = function(kwargs) {
 			}
 		}
 
-		if (this.fnPlot) {
-			this.fnPlot(picked_mesh);
+		if (_this.cur_picked != picked_mesh && t) {
+			_this.cur_picked = picked_mesh;
+			if (_this.fnPlot)
+				_this.fnPlot(picked_mesh);
 		}
 	}
 
