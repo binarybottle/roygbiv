@@ -206,14 +206,13 @@ var Brain = function(kwargs) {
 		var name_found = Object.keys(_this.meshes).reduce(function(c, k) {
 			return c || _this.meshes[k].name == mesh_props.name;
 		}, false);
+
 		if (name_found && url == _this.meshes[mesh_props.name].filename) {
 			var mesh = _this.meshes[mesh_props.name];
 		  	set_mesh_color(mesh, mesh_props.color);
-		  	console.log('redo ' + mesh_props.name);
 		}
 		else {
 			if (name_found) {
-			  	console.log('just removed mesh; different filename! ', url, _this.meshes[mesh_props.name]);
 				_this.removeMesh(_this.meshes[mesh_props.name]);
 			}
 			var oReq = new XMLHttpRequest();
