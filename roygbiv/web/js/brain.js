@@ -108,7 +108,7 @@ var Brain = function(kwargs) {
 	}
 
 	this.loadBrain = function(manifest_url) {
-		_this.manifest_url = manifest_url || _this.manifest_url
+		_this.manifest_url = (manifest_url || _this.manifest_url) + '?' + (new Date())
 
 		$.ajax({dataType: "json",
 			url: this.manifest_url,
@@ -287,14 +287,16 @@ var Brain = function(kwargs) {
 	}
 
 	this.objectPick = function(picked_mesh) {
+		if (_this.cur_picked == picked_mesh)
+			return;
+
 		// Decrease opacity for all other parcels
 		for (var i in _this.meshes)
 			_this.meshes[i].material.opacity = picked_mesh ? 0.4 : 1;
 
-		if (picked_mesh)
+		if (picked_mesh) {
 			picked_mesh.material.opacity = 1;
 
-		if (_this.cur_picked != picked_mesh && t) {
 			_this.cur_picked = picked_mesh;
 			if (_this.fnPlot)
 				_this.fnPlot(picked_mesh);
