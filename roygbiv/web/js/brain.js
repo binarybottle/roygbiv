@@ -278,9 +278,9 @@ var Brain = function(kwargs) {
 
 	this.selectMeshByName = function(mesh_name) {
 		/* Returns a mesh from a name. */
-		for (i=0;i<this.meshes.length;i++) {
-			if (this.meshes[i].name == mesh_name) {
-				return this.meshes[i];
+		for (var i in _this.meshes) {
+			if (_this.meshes[i].name == mesh_name) {
+				return _this.meshes[i];
 			}
 		}
 		return null;
@@ -288,7 +288,7 @@ var Brain = function(kwargs) {
 
 	this.objectPick = function(picked_mesh) {
 		// Decrease opacity for all other parcels
-		for (i=0; i<this.meshes.length; i++)
+		for (var i in _this.meshes)
 			_this.meshes[i].material.opacity = picked_mesh ? 0.4 : 1;
 
 		if (picked_mesh)
