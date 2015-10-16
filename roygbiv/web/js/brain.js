@@ -28,7 +28,7 @@ var Brain = function(kwargs) {
 		var sz = this.container.getBoundingClientRect();
 
 		//Some important variables
-		this.meshes = []
+		this.meshes = {}
 
 		/*info = document.body.appendChild( document.createElement( 'div' ) );
 		info.style.cssText = 'left: 0; margin: auto; position: absolute; right: 70%; width: 25%; text-align: center; ';
@@ -85,16 +85,19 @@ var Brain = function(kwargs) {
 		});
 	};
 
-	this.clearBrain = function() {
-		console.log('clearing brain');
-		for (var mi in this.meshes) {
-			var mesh = this.meshes[mi]
-			this.scene.children.pop(0);
-			this.meshes.pop(0);
+	this.removeMesh = function(mesh) {
+		_this.scene.children.pop(_this.scene.children.indexOf(mesh));
+		delete _this.meshes[mesh.name]
+	}
+
+	this.clearBrain = function(keeper_keys) {
+		console.log('clearing brain but keeping', keeper_keys);
+		for (var mi in _this.meshes) {
+			if (keeper_keys.indexOf(mi) != -1)
+				continue;
+			var mesh = _this.meshes[mi]
+			_this.removeMesh(mesh);
 		}
-		this.scene.children = [this.scene.children[0]];
-		this.meshes = [];
-		console.log(this.scene.children.length, this.meshes.length);
 	}
 
 	this.loadBrain = function(manifest_url) {
@@ -105,8 +108,10 @@ var Brain = function(kwargs) {
 			url: this.manifest_url,
 			data: function(data) {},
 			success: function(data, textStatus, jqXHR) {
-				_this.clearBrain();
+				var new_names = Object.keys(data["names"]).map(function(k) { return data["names"][k]; });
+				_this.clearBrain(new_names);
 
+				var base_url = _this.manifest_url.split('/').reverse().slice(1).reverse().join('/')
 				console.log('loading brain');
 				for (var key in data["filename"]) {
 					var color = ("colors" in data) ? data["colors"][key] : null;
@@ -115,7 +120,7 @@ var Brain = function(kwargs) {
 					var mesh_url = data["filename"][key];
 
 					if (mesh_url[0] != '/') {  // relative path is relative to manifest
-						mesh_url = _this.manifest_url + "/../" + mesh_url;
+						mesh_url = base_url + "/" + mesh_url;
 					}
 
 					_this.loadMesh(mesh_url, {
@@ -175,49 +180,75 @@ var Brain = function(kwargs) {
 	}
 
 	this.loadMesh = function(url, mesh_props) {
-		var oReq = new XMLHttpRequest();
-		oReq.open("GET", url, true);
-		oReq.onload = function(oEvent) {
-			var buffergeometry = new THREE.VTKLoader().parse(this.response);
-			geometry=new THREE.Geometry().fromBufferGeometry(buffergeometry);
-			geometry.computeFaceNormals();
-			geometry.computeVertexNormals();
-			geometry.__dirtyColors = true;
-
-			material=new THREE.MeshLambertMaterial({vertexColors: THREE.FaceColors});
-
-		  	var color = mesh_props.color || [rnum(0.25, 1.), rnum(0.25, 1.), rnum(0.25, 1.)]
-			for (var i=0;i<geometry.faces.length;i++){
-			  var face = geometry.faces[i];
-			  face.color.setHex( Math.random() * 0xffffff );
-			  face.color.setRGB(color[0], color[1], color[2]);
-
+		function set_mesh_color(mesh, color) {
+			var geometry = mesh.geometry;
+			for (var i=geometry.faces.length - 1; i>=0; --i) {
+				var face = geometry.faces[i];
+			 	if (color) {
+					face.color.setHex( Math.random() * 0xffffff );
+					face.color.setRGB(color[0], color[1], color[2]);
+				} else {
+					var before_faces = geometry.faces.slice(0, i);
+					var after_faces = geometry.faces.slice(i + 1, geometry.faces.length);
+					geometry.faces = before_faces.concat(after_faces);
+				}
 			  //face.materials = [ new THREE.MeshBasicMaterial( { color: Math.random() * 0xffffff } ) ];
 			}
 			geometry.colorsNeedUpdate = true;
-
-			var mesh = new THREE.Mesh(geometry, material);
-			mesh.dynamic = true;
-			mesh.rotation.y = Math.PI * 1.1;
-			mesh.rotation.x = Math.PI * 0.5;
-			mesh.rotation.z = Math.PI * 1.5;
-
-			var mesh_name = mesh_props.name;
-			for (var k in mesh_props) {
-				mesh[k] = mesh_props[k];
-			}
-			if (mesh_name) {
-				mesh.name = mesh_name;
-			} else {
-				var tmp = url.split("_")
-				mesh.name = tmp[tmp.length-1].split(".vtk")[0]
-			}
-
-			_this.scene.add(mesh);
-			_this.meshes.push(mesh)
-
+			return mesh;
 		}
-		oReq.send();
+
+		var name_found = Object.keys(_this.meshes).reduce(function(c, k) {
+			return c || _this.meshes[k].name == mesh_props.name;
+		}, false);
+		if (name_found && url == _this.meshes[mesh_props.name].filename) {
+			var mesh = _this.meshes[mesh_props.name];
+		  	set_mesh_color(mesh, mesh_props.color);
+		  	console.log('redo ' + mesh_props.name);
+		}
+		else {
+			if (name_found) {
+			  	console.log('just removed mesh; different filename! ', url, _this.meshes[mesh_props.name]);
+				_this.removeMesh(_this.meshes[mesh_props.name]);
+			}
+			var oReq = new XMLHttpRequest();
+			oReq.open("GET", url, true);
+			oReq.onload = function(oEvent) {
+				var buffergeometry = new THREE.VTKLoader().parse(this.response);
+				geometry=new THREE.Geometry().fromBufferGeometry(buffergeometry);
+				geometry.computeFaceNormals();
+				geometry.computeVertexNormals();
+				geometry.__dirtyColors = true;
+
+				material = new THREE.MeshLambertMaterial({vertexColors: THREE.FaceColors});
+
+				mesh = new THREE.Mesh(geometry, material);
+				mesh.filename = url;
+				mesh.dynamic = true;
+			  	set_mesh_color(mesh, mesh_props.color);
+
+				mesh.material.transparent = true;
+				mesh.material.opacity = 1;
+				mesh.rotation.y = Math.PI * 1.01;
+				mesh.rotation.x = Math.PI * 0.5;
+				mesh.rotation.z = Math.PI * 1.5 * (url.indexOf('rh_') == -1 ? 1 : -1);
+
+				var mesh_name = mesh_props.name;
+				for (var k in mesh_props) {
+					mesh[k] = mesh_props[k];
+				}
+				if (mesh_name) {
+					mesh.name = mesh_name;
+				} else {
+					var tmp = url.split("_")
+					mesh.name = tmp[tmp.length-1].split(".vtk")[0]
+				}
+
+				_this.scene.add(mesh);
+				_this.meshes[mesh.name] = mesh
+			}
+			oReq.send();
+		}
 	}
 
 	this.selectMeshByMouse = function(e) {
