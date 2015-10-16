@@ -101,7 +101,6 @@ var Brain = function(kwargs) {
 	}
 
 	this.loadBrain = function(manifest_url) {
-		var _this = this;
 		_this.manifest_url = manifest_url || _this.manifest_url
 
 		$.ajax({dataType: "json",
@@ -129,9 +128,8 @@ var Brain = function(kwargs) {
 						value: value
 					});
 				}
-				console.log(data);
 			},
-			error: function(err) { alert('Load error'); }
+			error: function(err) { console.error('Load error'); }
 		});
 	};
 
