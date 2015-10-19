@@ -86,7 +86,7 @@ function HemiPlotter(kwargs) {
                         _this._loadDataMulti();
                         break;
 
-                    otherwise:
+                    default:
                         if (_this.divIDs.length != 2)
                             throw sprintf("Must pass two divs for master/slave brain setup.")
                         _this._loadDataSlaveBrain();
