@@ -129,8 +129,10 @@ var Brain = function(kwargs) {
 			url: this.manifest_url,
 			data: function(data) {},
 			success: function(data, textStatus, jqXHR) {
-				var new_names = Object.keys(data["names"]).map(function(k) { return data["names"][k]; });
-				_this.clearBrain(new_names);
+				if ('names' in data) {
+					var new_names = Object.keys(data["names"]).map(function(k) { return data["names"][k]; });
+					_this.clearBrain(new_names);
+				}
 
 				var base_url = _this.manifest_url.split('/').reverse().slice(1).reverse().join('/')
 				console.log('loading brain');
