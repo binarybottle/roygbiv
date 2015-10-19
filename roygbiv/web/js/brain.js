@@ -20,13 +20,13 @@ var Brain = function(kwargs) {
 	value_key: selection of a particular value from the manifest file.
 	*/
 	var _this = this;
-	this.selectedLabel = null;
-	this.fnPlot = kwargs.callback || null;
-	this.divID = kwargs.divID || 'brain';
-	this.view = kwargs.view || {};  // allow overriding fov, near, far, etc
-	this.value_key = kwargs.value_key || null;
+	_this.selectedLabel = null;
+	_this.fnPlot = kwargs.callback || null;
+	_this.divID = kwargs.divID || 'brain';
 	_this.manifest_url = kwargs.manifest_url || "files_to_load.json";
 	_this.data_url = kwargs.data_url || _this.manifest_url;
+	_this.view = kwargs.view || {};  // allow overriding fov, near, far, etc
+	_this.value_key = kwargs.value_key || null;
 
 	// Just to declare the parts up front...
 	this.camera = null;
@@ -260,7 +260,7 @@ var Brain = function(kwargs) {
 			oReq.open("GET", url, true);
 			oReq.onload = function(oEvent) {
 				var buffergeometry = new THREE.VTKLoader().parse(this.response);
-				geometry=new THREE.Geometry().fromBufferGeometry(buffergeometry);
+				geometry = new THREE.Geometry().fromBufferGeometry(buffergeometry);
 				geometry.computeFaceNormals();
 				geometry.computeVertexNormals();
 				geometry.__dirtyColors = true;

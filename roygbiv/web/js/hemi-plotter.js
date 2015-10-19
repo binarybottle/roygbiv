@@ -63,7 +63,6 @@ function HemiPlotter(kwargs) {
             data: function(data) {},
             error: function(err) { console.error('Load error'); },
             success: function(data, textStatus, jqXHR) {
-                console.log(data)
                 var keys = Object.keys(data["values"]);
                 var value_0 = data["values"][keys[0]];
                 var value_len = isarr(value_0) ? value_0.length : 1;
@@ -82,14 +81,14 @@ function HemiPlotter(kwargs) {
                         if (_this.divIDs.length != value_len)
                             throw sprintf("Length of values must match length of divIDs %d != %d",
                                           value_len, _this.divIDs.length);
-                        console.log('a')
                         _this._loadDataMulti();
                         break;
 
                     default:
                         if (_this.divIDs.length != 2)
-                            throw sprintf("Must pass two divs for master/slave brain setup.")
+                            throw sprintf("Must pass two divs for master/slave brain setup.");
                         _this._loadDataSlaveBrain();
+                        break;
                 } // switch
             } // success
         }); // ajax
