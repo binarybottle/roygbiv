@@ -34,12 +34,13 @@ function HemiPlotter(kwargs) {
     */
     var _this = this;
     _this.manifest_url = kwargs.manifest_url;
+    _this.data_url = kwargs.data_url || _this.manifest_url;
     _this.divIDs = kwargs.divIDs || [kwargs.divID];
     _this.hemis = null;
     _this.callback = kwargs.callback || null;
 
     _this.__init__ = function() {
-        _this.loadData()
+        _this.loadBrains()
     }
 
     _this.clearData = function() {
@@ -51,13 +52,14 @@ function HemiPlotter(kwargs) {
         _this.values = null;
     }
 
-    _this.loadData = function(manifest_url) {
-        _this.manifest_url = (manifest_url || _this.manifest_url) + '?' + (new Date());
-        _this.clearData();
-        console.log('oad')
+*/
+    _this.loadBrains = function(kwargs) {
+        kwargs = kwargs || {}
+        _this.manifest_url = (kwargs.manifest_url || _this.manifest_url) + '?' + (new Date());
+        _this.data_url = (kwargs.data_url || _this.data_url) + '?' + (new Date());
 
         $.ajax({dataType: "json",
-            url: this.manifest_url,
+            url: _this.data_url + "?" + (new Date()),
             data: function(data) {},
             error: function(err) { console.error('Load error'); },
             success: function(data, textStatus, jqXHR) {

@@ -26,6 +26,7 @@ var Brain = function(kwargs) {
 	this.view = kwargs.view || {};  // allow overriding fov, near, far, etc
 	this.value_key = kwargs.value_key || null;
 	_this.manifest_url = kwargs.manifest_url || "files_to_load.json";
+	_this.data_url = kwargs.data_url || _this.manifest_url;
 
 	// Just to declare the parts up front...
 	this.camera = null;
@@ -114,8 +115,10 @@ var Brain = function(kwargs) {
 		}
 	}
 
-	this.loadBrain = function(manifest_url) {
-		_this.manifest_url = (manifest_url || _this.manifest_url) + '?' + (new Date())
+	this.loadBrain = function(kwargs) {
+		kwargs = kwargs || {};
+		_this.manifest_url = (kwargs.manifest_url || _this.manifest_url) + '?' + (new Date())
+		_this.data_url = (kwargs.data_url || _this.data_url) + '?' + (new Date())
 
 		$.ajax({dataType: "json",
 			url: this.manifest_url,
