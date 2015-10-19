@@ -1,7 +1,3 @@
-function rnum(min, max) {
-	return Math.random() * (max - min) + min;
-}
-
 var Brain = function(kwargs) {
 	//divID, fnPlot, manifest_url
 
@@ -185,31 +181,12 @@ var Brain = function(kwargs) {
 	}
 
 	this.loadMesh = function(url, mesh_props) {
-		function set_mesh_color(mesh, color) {
-			var geometry = mesh.geometry;
-			for (var i=geometry.faces.length - 1; i>=0; --i) {
-				var face = geometry.faces[i];
-			 	if (color) {
-					face.color.setHex( Math.random() * 0xffffff );
-					face.color.setRGB(color[0], color[1], color[2]);
-				} else {
-					var before_faces = geometry.faces.slice(0, i);
-					var after_faces = geometry.faces.slice(i + 1, geometry.faces.length);
-					geometry.faces = before_faces.concat(after_faces);
-				}
-			  //face.materials = [ new THREE.MeshBasicMaterial( { color: Math.random() * 0xffffff } ) ];
-			}
-			geometry.colorsNeedUpdate = true;
-			return mesh;
-		}
-
 		var name_found = Object.keys(_this.meshes).reduce(function(c, k) {
 			return c || _this.meshes[k].name == mesh_props.name;
 		}, false);
 
 		if (name_found && url == _this.meshes[mesh_props.name].filename) {
 			var mesh = _this.meshes[mesh_props.name];
-		  	set_mesh_color(mesh, mesh_props.color);
 		}
 		else {
 			if (name_found) {
@@ -227,9 +204,10 @@ var Brain = function(kwargs) {
 				material = new THREE.MeshLambertMaterial({vertexColors: THREE.FaceColors});
 
 				mesh = new THREE.Mesh(geometry, material);
+				copy_mesh_props(mesh_props, mesh);
+
 				mesh.filename = url;
 				mesh.dynamic = true;
-			  	set_mesh_color(mesh, mesh_props.color);
 
 				mesh.material.transparent = true;
 				mesh.material.opacity = 1;
@@ -238,9 +216,6 @@ var Brain = function(kwargs) {
 				mesh.rotation.z = Math.PI * 1.5 * (url.indexOf('rh_') == -1 ? 1 : -1);
 
 				var mesh_name = mesh_props.name;
-				for (var k in mesh_props) {
-					mesh[k] = mesh_props[k];
-				}
 				if (mesh_name) {
 					mesh.name = mesh_name;
 				} else {
