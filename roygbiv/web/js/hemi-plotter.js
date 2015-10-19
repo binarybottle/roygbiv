@@ -97,59 +97,98 @@ function HemiPlotter(kwargs) {
 
     _this._loadDataSingle = function() {
         // Single brain with a single value; just fire it up as usual.
-        _this.hemis = [new Brain({
-            divID: _this.divIDs[0],
-            callback: _this.callback
-        })];
+        if (_this.hemis == null) {
+            _this.hemis = [new Brain({
                 manifest_url: _this.manifest_url,
+                data_url: _this.data_url,
+                divID: _this.divIDs[0],
+                callback: _this.callback
+            })];
+        } else {
+            _this.hemis[0].loadBrain({
                 manifest_url: _this.manifest_url,
+                data_url: _this.data_url
+            });
+        }
     }
 
     _this._loadDataMulti = function() {
-        _this.hemis = [];
         var value_keys = Object.keys(_this.values);
-        var value_0 = _this.values[value_keys[0]]
-        console.log(value_0)
-        for (var hi in value_0) {
-            console.log(hi)
-            _this.hemis.push(new Brain({
-                divID: _this.divIDs[hi],
-                callback: _this.callback,
-                value_key: Object.keys(value_0)[hi]
-            }));
+        var value_0 = _this.values[value_keys[0]];
+
+        _this.hemis = _this.hemis || {};
+        for (var hi in value_0) {  // Loop over roi_keys
+            if (_this.hemis[hi] === undefied) {
+                _this.hemis[hi] = new Brain({
                     manifest_url: _this.manifest_url,
+                    data_url: _this.data_url,
+                    divID: _this.divIDs[hi],
+                    callback: _this.callback,
+                    value_key: Object.keys(value_0)[hi]
+                });
+            } else {
+                _this.hemis[hi].loadBrain({
                     manifest_url: _this.manifest_url,
+                    data_url: _this.data_url
+                });
+            }
         }
-        console.log(_this.hemis)
     }
 
     _this._loadDataSlaveBrain = function() {
         // Master / slave relationship
-        _this.hemis = {};
-        _this.hemis['master'] = new Brain({  // Master
-            divID: _this.divIDs[0],
-            callback: function(mesh) {
-                // Use the values from the selected mesh
-                // to recolor the slave brain
-                var slave = _this.hemis['slave'];
-                if (mesh) {
-                    slave._this.values[mesh.name];
-                    var stats_mesh = slave.selectMeshByName(mesh.name);
-                    slave.objectPick(stats_mesh);
-                }
-                _this.callback(mesh);
-            }
-        });
 
-        _this.hemis.push(new Brain({  // Slave
-            manifest: _this.manifest_url,
-            divID: _this.divIDs[1],
-            callback: null
-        }));
+        _this.hemis = _this.hemis || {};
+        if (_this.hemis['master'] === undefined) {
+            _this.hemis['master'] = new Brain({  // Master
                 manifest_url: _this.manifest_url,
+                data_url: _this.data_url,
+                divID: _this.divIDs[0],
+                callback: function(mesh) {
+                    // Use the values from the selected mesh
+                    // to recolor the slave brain
+                    var slave = _this.hemis['slave'];
+                    if (mesh) {
+                        var values = _this.values[mesh.roi_key];
+                        var colors = _this.colors[mesh.roi_key];
+                        var stats_mesh = slave.selectMeshByName(mesh.name);
+                        slave.objectPick(stats_mesh);
+
+                        for (var key in slave.meshes) {
+                            if (colors[key] === undefined) {
+                                console.log('no color for ', key)
+                                continue;
+                            }
+                            try {
+                                set_mesh_color(slave.meshes[key], colors[key]);
+                            } catch (e) {
+                                console.log(e);
+                            }
+                        }  // for
+                    }  // if
+                    _this.callback(mesh);
+                }  // callback
+            });  // brain
+        } else {
+            _this.hemis['master'].loadBrain({
                 manifest_url: _this.manifest_url,
+                data_url: _this.data_url
+            });
+        }
+
+        if (_this.hemis['slave'] === undefined) {
+            _this.hemis['slave'] = new Brain({  // Slave
                 manifest_url: _this.manifest_url,
+                data_url: _this.data_url,
+                divID: _this.divIDs[1],
+                callback: null
+            });
+        } else {
+            _this.hemis['slave'].loadBrain({
                 manifest_url: _this.manifest_url,
+                data_url: _this.data_url
+            });
+        }
     }
 
     _this.__init__()
