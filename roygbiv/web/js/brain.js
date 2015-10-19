@@ -45,14 +45,6 @@ var Brain = function(kwargs) {
 		//Some important variables
 		this.meshes = {}
 
-		/*info = document.body.appendChild( document.createElement( 'div' ) );
-		info.style.cssText = 'left: 0; margin: auto; position: absolute; right: 70%; width: 25%; text-align: center; ';
-		info.innerHTML = info.txt = '<h1>ROYGBIV</h1>' //+*/
-
-			//'<p>Show one hand and five fingers to start</p>' +
-			//'<div id=data ></div>' +
-		//'</p>';
-
 		// The Camera
 		// Params: x,y,z starting position
 		this.camera = new THREE.PerspectiveCamera(
