@@ -101,14 +101,26 @@ var Brain = function(kwargs) {
 	};
 
 	this.removeMesh = function(mesh) {
-		_this.scene.children.pop(_this.scene.children.indexOf(mesh));
-		delete _this.meshes[mesh.name]
+		while (true) {  // Hack to deal with double-add
+			mesh_idx = Object.keys(_this.scene.children).reduce(function(past, cur) {
+				if (past != -1) return past;
+				else if (_this.scene.children[cur].roi_key == mesh.roi_key) return cur;
+				else return -1;
+			}, -1);
+			if (mesh_idx == -1) {
+				break;
+			} else {
+				_this.scene.children.pop(mesh_idx);
+			}
+		}
+		delete _this.meshes[mesh.roi_key];
 	}
 
-	this.clearBrain = function(keeper_keys) {
-		console.log('clearing brain but keeping');
+	this.clearBrain = function(keeper_roi_keys) {
+		keeper_roi_keys = keeper_roi_keys || [];
+		console.log(sprintf('clearing brain but keeping %d rois', keeper_roi_keys.length));
 		for (var mi in _this.meshes) {
-			if (keeper_keys.indexOf(mi) != -1)
+			if (keeper_roi_keys && keeper_roi_keys.indexOf(mi) != -1)
 				continue;
 			var mesh = _this.meshes[mi]
 			_this.removeMesh(mesh);
@@ -120,43 +132,69 @@ var Brain = function(kwargs) {
 		_this.manifest_url = (kwargs.manifest_url || _this.manifest_url) + '?' + (new Date())
 		_this.data_url = (kwargs.data_url || _this.data_url) + '?' + (new Date())
 
-		$.ajax({dataType: "json",
-			url: this.manifest_url,
-			data: function(data) {},
-			success: function(data, textStatus, jqXHR) {
-				if ('names' in data) {
-					var new_names = Object.keys(data["names"]).map(function(k) { return data["names"][k]; });
-					_this.clearBrain(new_names);
+		if (_this.manifest_url === null)
+			return;
+		console.log(_this.manifest_url);
+
+		function reset_mesh_props(data, textStatus, jqXHR) {
+			console.log('loading brain');
+
+			// Out with the old
+			var keys = Object.keys(data);
+			var key0 = keys[0];
+			var roi_keys = Object.keys(data[key0]);
+			_this.clearBrain(roi_keys);
+
+			// hack to remove filename from URL
+			var base_url = _this.manifest_url.split('/').reverse().slice(1).reverse().join('/');
+
+			for (var ki in roi_keys) {
+				var key = roi_keys[ki];
+				var mesh_url = ("filename" in data) ? data["filename"][key] : null;
+				var mesh_props = {
+					color: ("colors" in data) ? data["colors"][key] : [rnum(0.25, 1.), rnum(0.25, 1.), rnum(0.25, 1.)],
+					name: ("names" in data) ? data["names"][key] : key,
+					value: ("values" in data) ? data["values"][key] : null,
+					roi_key: key
 				}
 
-				var base_url = _this.manifest_url.split('/').reverse().slice(1).reverse().join('/')
-				console.log('loading brain');
-				for (var key in data["filename"]) {
-					var mesh_url = data["filename"][key];
-					var color = ("colors" in data) ? data["colors"][key] : null;
-					var name = ("names" in data) ? data["names"][key] : null;
-					var value = ("values" in data) ? data["values"][key] : null;
+				// Select the needed value
+				if (mesh_props.value === undefined || mesh_props.value === null)
+					mesh_props.value = mesh_props.value; // no-op
+				else if (_this.value_key)
+					mesh_props.value = mesh_props.value[_this.value_key];
+				else if (isarr(mesh_props.value))
+					mesh_props.value = mesh_props.value[0];
 
-					// Select the needed value
-					if (value === undefined || value === null)
-						value = value;
-					else if (_this.value_key)
-						value = value[_this.value_key];
-					else if (isarr(value))
-						value = value[0];
-
-					if (mesh_url[0] != '/') {  // relative path is relative to manifest
+				if (mesh_url) {  // Load remote mesh
+					if (mesh_url[0] != '/')  // relative path is relative to manifest
 						mesh_url = base_url + "/" + mesh_url;
-					}
+					_this.loadMesh(mesh_url, mesh_props);
+				} else if (_this.meshes && _this.meshes.length > 0) {  // Set existing mesh properties
+					cosole.log('hi')
+					copy_mesh_props(mesh_props, _this.meshes[mesh_props.key]);
+				} else {  // Didn't load mesh, none existing...
+					console.error(sprintf("Mesh URL not specified for %s, no existing mesh, skipping...",
+										  mesh_props.name));
+				}
+			}
+		}
 
-					_this.loadMesh(mesh_url, {
-						name: name || key,
-						color: color || [rnum(0.25, 1.), rnum(0.25, 1.), rnum(0.25, 1.)],
-						value: value
+		$.ajax({dataType: "json",
+			url: _this.manifest_url,
+			data: function(data) {},
+			error: function(err) { console.error('Load error'); },
+			success: function(data, textStatus, jqXHR) {
+				reset_mesh_props(data, textStatus, jqXHR);
+				if (false && _this.data_url && _this.data_url != _this.manifest_url) {
+					$.ajax({dataType: "json",
+						url: this.data_url,
+						data: function(data) {},
+						error: function(err) { console.error('Load error'); },
+						success: reset_mesh_props
 					});
 				}
-			},
-			error: function(err) { console.error('Load error'); }
+			}
 		});
 	};
 
@@ -209,12 +247,14 @@ var Brain = function(kwargs) {
 			return c || _this.meshes[k].name == mesh_props.name;
 		}, false);
 
-		if (name_found && url == _this.meshes[mesh_props.name].filename) {
-			var mesh = _this.meshes[mesh_props.name];
+		if (name_found && url == _this.meshes[mesh_props.roi_key].filename) {
+			// Reuse mesh
+			var mesh = _this.meshes[mesh_props.roi_key];
+			copy_mesh_props(mesh_props, mesh);
 		}
 		else {
-			if (name_found) {
-				_this.removeMesh(_this.meshes[mesh_props.name]);
+			if (name_found)  { // Unreusable mesh; remove it
+				_this.removeMesh(_this.meshes[mesh_props.roi_key]);
 			}
 			var oReq = new XMLHttpRequest();
 			oReq.open("GET", url, true);
@@ -248,7 +288,7 @@ var Brain = function(kwargs) {
 				}
 
 				_this.scene.add(mesh);
-				_this.meshes[mesh.name] = mesh
+				_this.meshes[mesh.roi_key] = mesh
 			}
 			oReq.send();
 		}
