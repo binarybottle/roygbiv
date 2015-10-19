@@ -3,7 +3,7 @@ function rnum(min, max) {
 }
 
 function isarr(v) {
-    return v && v.length !== undefined;
+    return v && (v.length !== undefined || Object.keys(v).length !== undefined);
 }
 
 function set_mesh_color(mesh, color) {
@@ -31,4 +31,3 @@ function copy_mesh_props(src_mesh, dest_mesh) {
     }
     return dest_mesh
 }
-
