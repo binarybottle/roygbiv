@@ -67,7 +67,8 @@ function HemiPlotter(kwargs) {
                 var value_0 = data["values"][keys[0]];
                 var value_len = isarr(value_0) ? Object.keys(value_0).length : 1;
 
-                _this.values = data["values"];
+                _this.values = data['values'];
+                _this.colors = data['colors'];
                 switch (value_len) {
                     case 1:
                         if (_this.divIDs.length != value_len)
