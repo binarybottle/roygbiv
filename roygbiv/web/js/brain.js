@@ -308,4 +308,5 @@ var Brain = function(kwargs) {
 	_this.__init__();
 	return _this;
 }
-}
+
+
