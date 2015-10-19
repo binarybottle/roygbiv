@@ -1,6 +1,24 @@
 var Brain = function(kwargs) {
-	//divID, fnPlot, manifest_url
+	/*
+	Brain represents a 2D brain surface.
+	It is loaded from a manifest file with the following format:
+	{
+	    filenames: ['1.vtk', '2.vtk', ...],
+	    names: ['area1', 'area2', ...],
+	    colors: ['color1', 'color2'...],
+	    values: [value1, value2, ...]
+	}
 
+	The following kwargs can be passed, to control the Brain behavior:
+
+	manifest: URL to the manifest file.
+	divID: name of the div where we can draw the brain.
+	callback: callback function on selection of a brain ROI.
+		callback: function(mesh) { console.log(mesh.name); }
+		mesh has name, value, color, as well as THREE.js properties.
+	view: object (fov, near, far, etc.) controlling THREE.js view
+	value_key: selection of a particular value from the manifest file.
+	*/
 	var _this = this;
 	this.selectedLabel = null;
 	this.fnPlot = kwargs.callback || null;
