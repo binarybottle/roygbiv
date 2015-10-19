@@ -65,7 +65,7 @@ function HemiPlotter(kwargs) {
             success: function(data, textStatus, jqXHR) {
                 var keys = Object.keys(data["values"]);
                 var value_0 = data["values"][keys[0]];
-                var value_len = isarr(value_0) ? value_0.length : 1;
+                var value_len = isarr(value_0) ? Object.keys(value_0).length : 1;
 
                 _this.values = data["values"];
                 switch (value_len) {
