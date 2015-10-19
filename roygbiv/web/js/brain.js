@@ -11,7 +11,7 @@ var Brain = function(kwargs) {
 
 	The following kwargs can be passed, to control the Brain behavior:
 
-	manifest: URL to the manifest file.
+	manifest_url: URL to the manifest file.
 	divID: name of the div where we can draw the brain.
 	callback: callback function on selection of a brain ROI.
 		callback: function(mesh) { console.log(mesh.name); }
@@ -23,9 +23,9 @@ var Brain = function(kwargs) {
 	this.selectedLabel = null;
 	this.fnPlot = kwargs.callback || null;
 	this.divID = kwargs.divID || 'brain';
-	this.manifest_url = kwargs.manifest || "files_to_load.json";
 	this.view = kwargs.view || {};  // allow overriding fov, near, far, etc
 	this.value_key = kwargs.value_key || null;
+	_this.manifest_url = kwargs.manifest_url || "files_to_load.json";
 
 	// Just to declare the parts up front...
 	this.camera = null;

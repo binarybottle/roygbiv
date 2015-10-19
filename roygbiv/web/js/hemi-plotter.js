@@ -96,10 +96,11 @@ function HemiPlotter(kwargs) {
     _this._loadDataSingle = function() {
         // Single brain with a single value; just fire it up as usual.
         _this.hemis = [new Brain({
-            manifest: _this.manifest_url,
             divID: _this.divIDs[0],
             callback: _this.callback
         })];
+                manifest_url: _this.manifest_url,
+                manifest_url: _this.manifest_url,
     }
 
     _this._loadDataMulti = function() {
@@ -110,11 +111,12 @@ function HemiPlotter(kwargs) {
         for (var hi in value_0) {
             console.log(hi)
             _this.hemis.push(new Brain({
-                manifest: _this.manifest_url,
                 divID: _this.divIDs[hi],
                 callback: _this.callback,
                 value_key: Object.keys(value_0)[hi]
             }));
+                    manifest_url: _this.manifest_url,
+                    manifest_url: _this.manifest_url,
         }
         console.log(_this.hemis)
     }
@@ -123,7 +125,6 @@ function HemiPlotter(kwargs) {
         // Master / slave relationship
         _this.hemis = {};
         _this.hemis['master'] = new Brain({  // Master
-            manifest: _this.manifest_url,
             divID: _this.divIDs[0],
             callback: function(mesh) {
                 // Use the values from the selected mesh
@@ -143,6 +144,10 @@ function HemiPlotter(kwargs) {
             divID: _this.divIDs[1],
             callback: null
         }));
+                manifest_url: _this.manifest_url,
+                manifest_url: _this.manifest_url,
+                manifest_url: _this.manifest_url,
+                manifest_url: _this.manifest_url,
     }
 
     _this.__init__()
