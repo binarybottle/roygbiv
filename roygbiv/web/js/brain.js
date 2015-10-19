@@ -36,7 +36,7 @@ var Brain = function(kwargs) {
 	// state variables
 	this.cur_picked = null;
 
-	this.init = function() {
+	this.__init__ = function() {
 
 		this.container = $('#' + this.divID)[0];
 		var sz = this.container.getBoundingClientRect();
@@ -112,7 +112,7 @@ var Brain = function(kwargs) {
 	}
 
 	this.clearBrain = function(keeper_keys) {
-		console.log('clearing brain but keeping', keeper_keys);
+		console.log('clearing brain but keeping');
 		for (var mi in _this.meshes) {
 			if (keeper_keys.indexOf(mi) != -1)
 				continue;
@@ -134,10 +134,10 @@ var Brain = function(kwargs) {
 				var base_url = _this.manifest_url.split('/').reverse().slice(1).reverse().join('/')
 				console.log('loading brain');
 				for (var key in data["filename"]) {
+					var mesh_url = data["filename"][key];
 					var color = ("colors" in data) ? data["colors"][key] : null;
 					var name = ("names" in data) ? data["names"][key] : null;
 					var value = ("values" in data) ? data["values"][key] : null;
-					var mesh_url = data["filename"][key];
 
 					if (mesh_url[0] != '/') {  // relative path is relative to manifest
 						mesh_url = base_url + "/" + mesh_url;
@@ -287,7 +287,7 @@ var Brain = function(kwargs) {
 		for (var i in _this.meshes)
 			_this.meshes[i].material.opacity = picked_mesh ? 0.4 : 1;
 
-		if (picked_mesh) {
+		if (picked_mesh && picked_mesh !== undefined) {
 			picked_mesh.material.opacity = 1;
 
 			_this.cur_picked = picked_mesh;
@@ -296,6 +296,7 @@ var Brain = function(kwargs) {
 		}
 	}
 
-	this.init();
-	return this;
+	_this.__init__();
+	return _this;
+}
 }
