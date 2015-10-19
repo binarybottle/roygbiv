@@ -25,6 +25,7 @@ var Brain = function(kwargs) {
 	this.divID = kwargs.divID || 'brain';
 	this.manifest_url = kwargs.manifest || "files_to_load.json";
 	this.view = kwargs.view || {};  // allow overriding fov, near, far, etc
+	this.value_key = kwargs.value_key || null;
 
 	// Just to declare the parts up front...
 	this.camera = null;
@@ -138,6 +139,14 @@ var Brain = function(kwargs) {
 					var color = ("colors" in data) ? data["colors"][key] : null;
 					var name = ("names" in data) ? data["names"][key] : null;
 					var value = ("values" in data) ? data["values"][key] : null;
+
+					// Select the needed value
+					if (value === undefined || value === null)
+						value = value;
+					else if (_this.value_key)
+						value = value[_this.value_key];
+					else if (isarr(value))
+						value = value[0];
 
 					if (mesh_url[0] != '/') {  // relative path is relative to manifest
 						mesh_url = base_url + "/" + mesh_url;
