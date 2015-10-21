@@ -3,7 +3,7 @@ function rnum(min, max) {
 }
 
 function isarr(v) {
-    return v && (v.length !== undefined || Object.keys(v).length !== undefined);
+    return v && (v.length !== undefined || Object.keys(v).length > 0);
 }
 
 function set_mesh_color(mesh, color) {
