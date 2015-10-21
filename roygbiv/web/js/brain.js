@@ -136,10 +136,12 @@ var Brain = function(kwargs) {
 
 		if (_this.manifest_url === null)
 			return;
-		console.log(_this.manifest_url);
 
-		function reset_mesh_props(data, textStatus, jqXHR) {
+		function reset_mesh_props(data, textStatus, jqXHR, paint_colors) {
 			console.log('loading brain');
+			if (paint_colors === undefined) {
+				paint_colors = true;
+			}
 
 			// Out with the old
 			var keys = Object.keys(data);
@@ -154,8 +156,6 @@ var Brain = function(kwargs) {
 				var val = (prop_name in data) ? data[prop_name][key] : default_val;
 				if (val && _this.value_key !== null)
 					val = val[_this.value_key] || val;
-				if (prop_name == 'values')
-					console.log('values', val);
 				return val;
 			}
 
@@ -168,12 +168,13 @@ var Brain = function(kwargs) {
 					value: get_prop(data, "values", key, null),
 					roi_key: key
 				}
+				if (!paint_colors) {
+					mesh_props['color'] = [1, 1, 1];
+				}
 
 				// Select the needed value
-				if (mesh_props.value === undefined || mesh_props.value === null)
-					mesh_props.value = mesh_props.value; // no-op
-				else if (isarr(mesh_props.value))
-					mesh_props.value = mesh_props.value[0];
+				if (isarr(mesh_props.value))
+					mesh_props.value = mesh_props.value[Object.keys(mesh_props.value)[0]];
 
 				if (mesh_url) {  // Load remote mesh
 					if (mesh_url[0] != '/')  // relative path is relative to manifest
@@ -193,8 +194,9 @@ var Brain = function(kwargs) {
 			data: function(data) {},
 			error: function(err) { console.error('Load error'); },
 			success: function(data, textStatus, jqXHR) {
-				reset_mesh_props(data, textStatus, jqXHR);
-				if (_this.data_url && _this.data_url != _this.manifest_url) {
+				var download_data = _this.data_url && _this.data_url != _this.manifest_url;
+				reset_mesh_props(data, textStatus, jqXHR, !download_data);
+				if (download_data) {
 					setTimeout(function() {
 						$.ajax({dataType: "json",
 							url: _this.data_url,
