@@ -38,11 +38,13 @@ function HemiPlotter(kwargs) {
     _this.divIDs = kwargs.divIDs || [kwargs.divID];
     _this.hemis = null;
     _this.callback = kwargs.callback || null;
+    _this.value_keys = kwargs.value_keys || null;
 
     _this.__init__ = function() {
         _this.loadBrains()
     }
 
+/*
     _this.clearData = function() {
         if (!_this.hemis) return;
         for (var k in _this.hemis) {
@@ -63,11 +65,12 @@ function HemiPlotter(kwargs) {
         $.ajax({dataType: "json",
             url: _this.data_url,
             data: function(data) {},
-            error: function(err) { console.error('Load error'); },
+            error: function(err) { console.error('Load error', err, _this.data_url); },
             success: function(data, textStatus, jqXHR) {
                 var keys = Object.keys(data["values"]);
+                var value_len = (_this.value_keys) ? _this.value_keys.length : null;
                 var value_0 = data["values"][keys[0]];
-                var value_len = isarr(value_0) ? Object.keys(value_0).length : 1;
+                //var value_len = isarr(value_0) ? Object.keys(value_0).length : 1;
 
                 _this.values = data['values'];
                 _this.colors = data['colors'];
@@ -79,8 +82,8 @@ function HemiPlotter(kwargs) {
                         _this._loadDataSingle();
                         break;
 
-                    case 2:
-                    case 3:
+                    case -2:
+                    case -3:
                         if (_this.divIDs.length != value_len)
                             throw sprintf("Length of values must match length of divIDs %d != %d",
                                           value_len, _this.divIDs.length);
@@ -126,7 +129,7 @@ function HemiPlotter(kwargs) {
                     data_url: _this.data_url,
                     divID: _this.divIDs[hi],
                     callback: _this.callback,
-                    value_key: Object.keys(value_0)[hi]
+                    value_key: _this.Object.keys(value_0)[hi]
                 });
             } else {
                 _this.hemis[hi].loadBrain({
@@ -146,6 +149,7 @@ function HemiPlotter(kwargs) {
                 manifest_url: _this.manifest_url,
                 //data_url: _this.data_url,  // no data url for master.
                 divID: _this.divIDs[0],
+                value_key: _this.value_keys['master'] || null,
                 callback: function(mesh) {
                     // Use the values from the selected mesh
                     // to recolor the slave brain
@@ -157,12 +161,16 @@ function HemiPlotter(kwargs) {
                         slave.objectPick(stats_mesh);
 
                         for (var key in slave.meshes) {
-                            if (colors[key] === undefined) {
+                            var color = [0.5, 0.5, 0.5];
+                            if (!(key in colors)) {
                                 console.log('no color for ', key)
-                                continue;
+                            } else if (colors[key] === undefined) {
+                                console.log('no color for ', key)
+                            } else {
+                                 color = colors[key];
                             }
                             try {
-                                set_mesh_color(slave.meshes[key], colors[key]);
+                                set_mesh_color(slave.meshes[key], color);
                             } catch (e) {
                                 console.log(e);
                             }
@@ -183,6 +191,7 @@ function HemiPlotter(kwargs) {
                 manifest_url: _this.manifest_url,
                 //data_url: _this.data_url,
                 divID: _this.divIDs[1],
+                value_key: _this.value_keys['slave'] || null,
                 callback: null
             });
         } else {
