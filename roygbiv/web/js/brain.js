@@ -176,7 +176,7 @@ var Brain = function(kwargs) {
 					copy_mesh_props(mesh_props, _this.meshes[mesh_props.roi_key]);
 				} else {  // Didn't load mesh, none existing...
 					console.error(sprintf("Mesh URL not specified for %s, no existing mesh, skipping...",
-										  mesh_props.name));
+										  mesh_props.roi_key), _this);
 				}
 			}
 		}
