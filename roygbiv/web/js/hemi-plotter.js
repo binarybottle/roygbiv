@@ -56,10 +56,12 @@ function HemiPlotter(kwargs) {
     _this.loadBrains = function(kwargs) {
         kwargs = kwargs || {}
         _this.manifest_url = (kwargs.manifest_url || _this.manifest_url) + '?' + (new Date());
-        _this.data_url = (kwargs.data_url || _this.data_url) + '?' + (new Date());
+        _this.data_url = (kwargs.data_url || _this.data_url);
+        if (_this.data_url)
+            _this.data_url += '?' + (new Date());
 
         $.ajax({dataType: "json",
-            url: _this.data_url + "?" + (new Date()),
+            url: _this.data_url,
             data: function(data) {},
             error: function(err) { console.error('Load error'); },
             success: function(data, textStatus, jqXHR) {
@@ -142,7 +144,7 @@ function HemiPlotter(kwargs) {
         if (_this.hemis['master'] === undefined) {
             _this.hemis['master'] = new Brain({  // Master
                 manifest_url: _this.manifest_url,
-                data_url: _this.data_url,
+                //data_url: _this.data_url,  // no data url for master.
                 divID: _this.divIDs[0],
                 callback: function(mesh) {
                     // Use the values from the selected mesh
@@ -179,7 +181,7 @@ function HemiPlotter(kwargs) {
         if (_this.hemis['slave'] === undefined) {
             _this.hemis['slave'] = new Brain({  // Slave
                 manifest_url: _this.manifest_url,
-                data_url: _this.data_url,
+                //data_url: _this.data_url,
                 divID: _this.divIDs[1],
                 callback: null
             });
