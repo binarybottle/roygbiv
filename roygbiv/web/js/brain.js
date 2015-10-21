@@ -323,7 +323,8 @@ var Brain = function(kwargs) {
 		if (intersects.length == 0) {
 			return null;
 		} else {
-			return intersects[0].object;  // select the first
+			var picked_key = intersects[0].object.roi_key  // select the first
+			return _this.meshes[picked_key];  // return our (potentially updated) version of the object.
 		}
 	}
 
