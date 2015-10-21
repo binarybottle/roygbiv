@@ -150,21 +150,28 @@ var Brain = function(kwargs) {
 			// hack to remove filename from URL
 			var base_url = _this.manifest_url.split('/').reverse().slice(1).reverse().join('/');
 
+			function get_prop(data, prop_name, key, default_val) {
+				var val = (prop_name in data) ? data[prop_name][key] : default_val;
+				if (val && _this.value_key !== null)
+					val = val[_this.value_key] || val;
+				if (prop_name == 'values')
+					console.log('values', val);
+				return val;
+			}
+
 			for (var ki in roi_keys) {
 				var key = roi_keys[ki];
-				var mesh_url = ("filename" in data) ? data["filename"][key] : null;
+				var mesh_url = get_prop(data, "filename", key, null);
 				var mesh_props = {
-					color: ("colors" in data) ? data["colors"][key] : [rnum(0.25, 1.), rnum(0.25, 1.), rnum(0.25, 1.)],
-					name: ("names" in data) ? data["names"][key] : key,
-					value: ("values" in data) ? data["values"][key] : null,
+					color: get_prop(data, "colors", key, [rnum(0.25, 1.), rnum(0.25, 1.), rnum(0.25, 1.)]),
+					name: get_prop(data, "names", key, key),
+					value: get_prop(data, "values", key, null),
 					roi_key: key
 				}
 
 				// Select the needed value
 				if (mesh_props.value === undefined || mesh_props.value === null)
 					mesh_props.value = mesh_props.value; // no-op
-				else if (_this.value_key)
-					mesh_props.value = mesh_props.value[_this.value_key];
 				else if (isarr(mesh_props.value))
 					mesh_props.value = mesh_props.value[0];
 
