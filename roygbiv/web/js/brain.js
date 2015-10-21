@@ -24,7 +24,7 @@ var Brain = function(kwargs) {
 	_this.fnPlot = kwargs.callback || null;
 	_this.divID = kwargs.divID || 'brain';
 	_this.manifest_url = kwargs.manifest_url || "files_to_load.json";
-	_this.data_url = kwargs.data_url || _this.manifest_url;
+	_this.data_url = kwargs.data_url || null; // _this.manifest_url;
 	_this.view = kwargs.view || {};  // allow overriding fov, near, far, etc
 	_this.value_key = kwargs.value_key || null;
 
@@ -130,7 +130,9 @@ var Brain = function(kwargs) {
 	this.loadBrain = function(kwargs) {
 		kwargs = kwargs || {};
 		_this.manifest_url = (kwargs.manifest_url || _this.manifest_url) + '?' + (new Date())
-		_this.data_url = (kwargs.data_url || _this.data_url) + '?' + (new Date())
+		_this.data_url = (kwargs.data_url || _this.data_url)
+		if (_this.data_url)
+			_this.data_url += '?' + (new Date())
 
 		if (_this.manifest_url === null)
 			return;
@@ -170,9 +172,8 @@ var Brain = function(kwargs) {
 					if (mesh_url[0] != '/')  // relative path is relative to manifest
 						mesh_url = base_url + "/" + mesh_url;
 					_this.loadMesh(mesh_url, mesh_props);
-				} else if (_this.meshes && _this.meshes.length > 0) {  // Set existing mesh properties
-					cosole.log('hi')
-					copy_mesh_props(mesh_props, _this.meshes[mesh_props.key]);
+				} else if (_this.meshes && _this.meshes[mesh_props.roi_key]) {  // Set existing mesh properties
+					copy_mesh_props(mesh_props, _this.meshes[mesh_props.roi_key]);
 				} else {  // Didn't load mesh, none existing...
 					console.error(sprintf("Mesh URL not specified for %s, no existing mesh, skipping...",
 										  mesh_props.name));
@@ -186,13 +187,15 @@ var Brain = function(kwargs) {
 			error: function(err) { console.error('Load error'); },
 			success: function(data, textStatus, jqXHR) {
 				reset_mesh_props(data, textStatus, jqXHR);
-				if (false && _this.data_url && _this.data_url != _this.manifest_url) {
-					$.ajax({dataType: "json",
-						url: this.data_url,
-						data: function(data) {},
-						error: function(err) { console.error('Load error'); },
-						success: reset_mesh_props
-					});
+				if (_this.data_url && _this.data_url != _this.manifest_url) {
+					setTimeout(function() {
+						$.ajax({dataType: "json",
+							url: _this.data_url,
+							data: function(data) {},
+							error: function(err) { console.error('Load error', err, _this.data_url); },
+							success: reset_mesh_props
+						});
+					}, 2000);
 				}
 			}
 		});
