@@ -59,8 +59,8 @@ body {
 
 #header_n_label {
 	float: left;
-	left: 0px; 
-	margin: auto; 
+	left: 0px;
+	margin: auto;
 	text-align: center;
 }
 
@@ -75,20 +75,55 @@ body {
 #nav-brain {
 	float: right;
 	width: 600px;
-	height: 600px;
-	margin: 0px;
+	height: 400px;
+	margin: 15px;
+	background-color: #333;
+	padding: 5px;
+	border-radius: 25px;
+	opacity: 2.25;
 }
 
 #plot-canvas {
 	float: left;
 	border: 2px solid #333;
-	width: 200px;
-	height: 100px;
+	width: 300px;
+	height: 200px;
 	padding: 10px;
 	margin: 30px 50px 70px 50px;
+	background-color: #333;
+	border-radius: 12px;
 }
 
 #demo-links {
 	float: right;
-	margin: 10px;
+	margin: 10px auto 10px auto;
+	text-align: right;
+}
+
+#left-container{
+	width: 600px;
+	float: right;
+}
+
+#selector {
+	width: 600px;
+	margin: 0px;
+	background-color: green;
+}
+#selector span {
+    width: 100px;
+    float: left;
+}
+#selector.selection-label{
+    width: 75px;
+    font-family: arial;
+    float:left;
+}
+#selector input {
+    margin: 3px 10px 0px 10px;
+    float: left;
+}
+#selector div {
+	width: 400px;
+	overflow: hidden;
 }
