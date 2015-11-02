@@ -2,12 +2,12 @@ import os
 
 from flask import Flask, request, send_from_directory
 
+from . import HTML_DIR, DATA_DIR
 
 _cur_dir = os.path.abspath(os.path.dirname(__file__))
 
 
-def make_server(web_dir=os.path.join(_cur_dir, 'web'),
-                data_dir=os.path.join(_cur_dir, '..', 'data')):
+def make_server(web_dir=HTML_DIR, data_dir=DATA_DIR):
 
     app = Flask(__name__)
 
@@ -19,7 +19,7 @@ def make_server(web_dir=os.path.join(_cur_dir, 'web'),
     @app.route('/<path:dataset>/<path:atlas>/<path:surface>/<path:html_file>')
     def send_allspecific(dataset, atlas, surface, html_file):
         if html_file == '':
-            html_file = 'index'
+            html_file = 'index.html'
         return send_from_directory(web_dir, html_file)
 
     # Generic
@@ -32,15 +32,12 @@ def make_server(web_dir=os.path.join(_cur_dir, 'web'),
     def send_all(path=''):
         if path == '':
             path = 'index.html'
-        print(path)
         return send_from_directory(web_dir, path)
 
     return app
 
 
-def launch_server(web_dir=os.path.join(_cur_dir, 'web'),
-                  data_dir=os.path.join(_cur_dir, '..', 'data'),
-                  debug=False):
+def launch_server(web_dir=HTML_DIR, data_dir=DATA_DIR, debug=False):
     app = make_server(web_dir=web_dir, data_dir=data_dir)
     app.debug = debug
     app.run()
