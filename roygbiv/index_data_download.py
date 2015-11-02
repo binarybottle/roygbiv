@@ -3,6 +3,8 @@ import os
 import pandas
 import requests
 
+from . import DATA_DIR
+
 
 def download_file(url, filename=None, chunk_size=8192, force=False):
     print url, filename
@@ -28,7 +30,8 @@ base_url = 'http://roygbiv.mindboggle.info/'
 # Download the file list, then read it.
 in_path =  'files_to_load.json'
 url = base_url + in_path
-out_path = 'web/data/lh_' + in_path  # dump json inside 'data'
+out_dir = os.environ.get('ROYGBIV')
+out_path = os.path.join(DATA_DIR, 'lh_' + in_path)  # dump json inside 'data'
 will_download = not os.path.exists(out_path)
 filename = download_file(url, out_path)
 with open(filename, 'r') as fp:
@@ -45,7 +48,7 @@ if will_download:
 for k in dataset['filename']:
     in_path = 'data/' + dataset['filename'][k]
     url = base_url + in_path
-    out_path = 'web/' + in_path
+    out_path = os.path.join(DATA_DIR, dataset['filename'][k])
     download_file(url, out_path)
 
 # Download all extra data files.
@@ -54,7 +57,7 @@ for k in dataset['filename']:
     label_id = os.path.basename(vtk_path)[len('freesurfer_curvature_'):-4]
     in_path = "data/mindboggled/Twins-2-1/tables/left_exploded_tables/" + label_id + ".0.csv"
     url = base_url + in_path
-    out_path = 'web/' + in_path
+    out_path = os.path.join(DATA_DIR, in_path[len('data/'):])
     download_file(url, out_path)
 
     # Convert the data file to JSON
