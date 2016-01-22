@@ -7,14 +7,14 @@ from . import DATA_DIR
 
 
 def download_file(url, filename=None, chunk_size=8192, force=False):
-    print url, filename
+    print(url, filename)
 
     if filename is None:
         filename = os.path.basename(url)
     base_dir = os.path.dirname(filename)
 
     if not os.path.exists(filename) or force:
-        print "Downloading %s to %s" % (url, filename)
+        print("Downloading %s to %s" % (url, filename))
         resp = requests.get(url, stream=True)
         if base_dir and not os.path.exists(base_dir):
             os.makedirs(base_dir)
@@ -28,7 +28,7 @@ def download_file(url, filename=None, chunk_size=8192, force=False):
 base_url = 'http://roygbiv.mindboggle.info/'
 
 # Download the file list, then read it.
-in_path =  'files_to_load.json'
+in_path = 'files_to_load.json'
 url = base_url + in_path
 out_dir = os.environ.get('ROYGBIV')
 out_path = os.path.join(DATA_DIR, 'lh_' + in_path)  # dump json inside 'data'
@@ -55,7 +55,8 @@ for k in dataset['filename']:
 for k in dataset['filename']:
     vtk_path = dataset['filename'][k]
     label_id = os.path.basename(vtk_path)[len('freesurfer_curvature_'):-4]
-    in_path = "data/mindboggled/Twins-2-1/tables/left_exploded_tables/" + label_id + ".0.csv"
+    in_path = ("data/mindboggled/Twins-2-1/tables/left_exploded_tables/" +
+               label_id + ".0.csv")
     url = base_url + in_path
     out_path = os.path.join(DATA_DIR, in_path[len('data/'):])
     download_file(url, out_path)
@@ -64,8 +65,9 @@ for k in dataset['filename']:
     json_path = out_path.replace('.csv', '.json')
     if not os.path.exists(json_path):
         df = pandas.read_csv(out_path)
-        with open(json_path, 'wb') as fp:
-            df_dict = dict([(key, list(val)) for key, val in zip(df.keys(), df.values.T)])
+        with open(json_path, 'w') as fp:
+            df_dict = dict([(key, list(val))
+                            for key, val in zip(df.keys(), df.values.T)])
             # Stack data
             data = dict(data=[], data_type=[])
             for ki, (key, val) in enumerate(df_dict.items()):
