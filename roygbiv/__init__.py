@@ -46,7 +46,7 @@ def add_metadata(metadata, json_file='files_to_load.json',
 
 
 def freesurfer_annot_to_vtks(surface_file, label_file, output_stem='',
-                             json_file='files_to_load.json',
+                             json_file=None,
                              sample_rate=1,
                              force=False, verbose=True, output_dir=DATA_DIR):
     """ Splits a surface file into vtk files based on regions in the label file.
@@ -55,6 +55,9 @@ def freesurfer_annot_to_vtks(surface_file, label_file, output_stem='',
         """Print only if verbose True"""
         if verbose:
             print(args)
+
+    if json_file is None:
+        json_file = output_stem + 'files_to_download.json'
 
     #
     vtk_dir = os.path.join(output_dir, os.path.dirname(output_stem))
@@ -105,18 +108,17 @@ def freesurfer_annot_to_vtks(surface_file, label_file, output_stem='',
     for vtk_file in output_vtks:
         downsample_vtk(vtk_file, sample_rate=sample_rate)
 
-    if json_file:
-        print_verbose('Creating download manifest file.')
-        if labels is None:
-            names = labels = [os.path.splitext(vtk_file)[0]
-                              for vtk_file in output_vtks]
+    print_verbose('Creating download manifest file.')
+    if labels is None:
+        names = labels = [os.path.splitext(vtk_file)[0]
+                          for vtk_file in output_vtks]
 
-        vtk_dict = dict([(name, output_stem + '%s.vtk' % lbl)
-                         for lbl, name in zip(labels, names)])
+    vtk_dict = dict([(name, output_stem + '%s.vtk' % lbl)
+                     for lbl, name in zip(labels, names)])
 
-        json_file = os.path.join(output_dir, json_file)
-        with open(json_file, 'wb') as fp:
-            json.dump(dict(filename=vtk_dict), fp)
+    json_file = os.path.join(output_dir, json_file)
+    with open(json_file, 'wb') as fp:
+        json.dump(dict(filename=vtk_dict), fp)
 
     return json_file
 
