@@ -11,7 +11,7 @@ def make_server(web_dir=HTML_DIR, data_dir=DATA_DIR):
 
     app = Flask(__name__)
 
-    @app.route('/data/<path:dataset>/<path:atlas>/<path:surface>/<path:path>')
+    @app.route('/<path:dataset>/<path:atlas>/<path:surface>/data/<path:path>')
     def send_data_specific(dataset, atlas, surface, path):
         cur_dir = os.path.join(data_dir, dataset, atlas, surface)
         return send_from_directory(cur_dir, path)
