@@ -34,10 +34,10 @@
 					<br />
 					Selected Label: {{selectedLabel}}
 				</div>
-				<div id="plot-canvas">
+				<div id="plot-canvas" style="width: 400px; height: 300px;">
 				</div>
 			</div>
-			<div id="nav-brain">
+			<div id="nav-brain" style="width: 500px; height: 400px; margin-top: 50px; margin-right: 50px;">
 			</div>
 		</div>
 
@@ -45,12 +45,15 @@
 			angular.module('navigator', [])
 			.controller('NavigateController', ['$scope', function($scope) {
                 $scope.brain = new Brain({
-                    divID: "nav-brain",
+                    divID: "nav-brain",  // div to render brain
                     callback: function(mesh) {
+                        // callback when a mesh is selected/deselected
                         if (!mesh) {
+                            // deselected: clear label & plot
                             $scope.selectedLabel = "";
                             $('#plot-canvas').empty();
                         } else {
+                            // selected: add label, do plot.
                             $scope.selectedLabel = mesh.name;
                             do_boxplot("plot-canvas", mesh);
                         }

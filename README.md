@@ -13,8 +13,8 @@ Instructions for running demos are below. To run demos locally, install the `fla
 ###To set up the `two hemis` demo locally:
 1. Install vtk
 2. Install mindboggle (`pip install git+https://github.com/binarybottle/mindboggle.git`)
-3. Run `python get_data.py `fsaverage` on your desired freesurfer subject
-4. Run `server.py` to launch a light-weight web server
+3. Run `python get_data.py fsaverage` (or replace `fsaverage with your desired freesurfer subject)
+4. Run `python server.py` to launch a light-weight web server
 5. Browse to `http://127.0.0.1:5000/fsaverage/desikan/pial/two_hemis.html`
 
 You can change parameters above and change the corresponding URL:

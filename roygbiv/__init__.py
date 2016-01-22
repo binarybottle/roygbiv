@@ -25,7 +25,8 @@ def downsample_vtk(vtk_file, sample_rate):
         raise ValueError('0 <= sample_rate <= 1; you input %f' % sample_rate)
 
     # Downsample
-    decimate_file(vtk_file, reduction=1 - sample_rate, output_vtk=vtk_file, save_vtk=True, smooth_steps=0)
+    decimate_file(vtk_file, reduction=1 - sample_rate, output_vtk=vtk_file,
+                  save_vtk=True, smooth_steps=0)
 
     # Hack to re-save in
     vtk_data = read_vtk(vtk_file)
@@ -45,7 +46,7 @@ def add_metadata(metadata, json_file='files_to_load.json',
 
 
 def freesurfer_annot_to_vtks(surface_file, label_file, output_stem='',
-                             json_file='files_to_load.json',
+                             json_file=None,
                              sample_rate=1,
                              force=False, verbose=True, output_dir=DATA_DIR):
     """ Splits a surface file into vtk files based on regions in the label file.
@@ -54,6 +55,9 @@ def freesurfer_annot_to_vtks(surface_file, label_file, output_stem='',
         """Print only if verbose True"""
         if verbose:
             print(args)
+
+    if json_file is None:
+        json_file = output_stem + 'files_to_download.json'
 
     #
     vtk_dir = os.path.join(output_dir, os.path.dirname(output_stem))
@@ -104,19 +108,20 @@ def freesurfer_annot_to_vtks(surface_file, label_file, output_stem='',
     for vtk_file in output_vtks:
         downsample_vtk(vtk_file, sample_rate=sample_rate)
 
-    if json_file:
-        print_verbose('Creating download manifest file.')
-        if labels is None:
-            names = labels = [os.path.splitext(vtk_file)[0] for vtk_file in output_vtks]
+    print_verbose('Creating download manifest file.')
+    if labels is None:
+        names = labels = [os.path.splitext(vtk_file)[0]
+                          for vtk_file in output_vtks]
 
-        vtk_dict = dict([(name, output_stem + '%s.vtk' % lbl)
-                         for lbl, name in zip(labels, names)])
+    vtk_dict = dict([(name, output_stem + '%s.vtk' % lbl)
+                     for lbl, name in zip(labels, names)])
 
-        json_file = os.path.join(output_dir, json_file)
-        with open(json_file, 'wb') as fp:
-            json.dump(dict(filename=vtk_dict), fp)
+    json_file = os.path.join(output_dir, json_file)
+    with open(json_file, 'wb') as fp:
+        json.dump(dict(filename=vtk_dict), fp)
 
     return json_file
+
 
 def atlas2aparc(atlas_name, hemi=None):
     """ Find freesurfer atlas aparc from atlas key.
@@ -138,20 +143,20 @@ def atlas2aparc(atlas_name, hemi=None):
     return annot_file_template % (hemi if hemi else '%s')
 
 
-def dump_vtks(subject_path, atlas_name, sample_rate=1, surface='pial', force=False, output_dir=DATA_DIR):
+def dump_vtks(subject_path, atlas_name, sample_rate=1, surface='pial',
+              force=False, output_dir=DATA_DIR):
     """ Convenience function to dump vtk parcels for each hemisphere."""
 
     all_data = dict(filename=dict())
     for hemi in ['lh', 'rh']:
-        surface_file = os.path.join(subject_path, 'surf', '%s.%s' % (hemi, surface))
+        surface_file = os.path.join(subject_path, 'surf', '%s.%s' % (
+            hemi, surface))
         label_file = os.path.join(subject_path, 'label',
                                   atlas2aparc(atlas_name, hemi=hemi))
-        json_file = freesurfer_annot_to_vtks(surface_file, label_file,
-                                             output_stem='%s_' % hemi,
-                                             json_file='%s_files_to_load.json' % hemi,
-                                             sample_rate=sample_rate,
-                                             force=force,
-                                             output_dir=output_dir)
+        json_file = freesurfer_annot_to_vtks(
+            surface_file, label_file, output_stem='%s_' % hemi,
+            json_file='%s_files_to_load.json' % hemi,
+            sample_rate=sample_rate, force=force, output_dir=output_dir)
         with open(json_file, 'rb') as fp:
             hemi_files = json.load(fp)['filename']
             for key, val in hemi_files.items():
