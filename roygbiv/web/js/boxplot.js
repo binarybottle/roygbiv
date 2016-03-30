@@ -7,6 +7,7 @@ function do_boxplot(divID, mesh) {
  	div_dom.html("loading...");
  	
 	labelID = mesh.name;
+	console.log(labelID)
 	color = [mesh.geometry.faces[0].color["r"],
 			  mesh.geometry.faces[0].color["g"],
 			  mesh.geometry.faces[0].color["b"]];
@@ -34,9 +35,10 @@ function do_boxplot(divID, mesh) {
 	var min = Infinity,
 		max = -Infinity;
 
-	var csvID = (Number(labelID) == 1) ? 999 : Number(labelID) + 999;
+	var csvID = mesh.filename.split(".vtk")[0].split("_").slice(-1)[0]//(Number(labelID) == 1) ? 999 : Number(labelID) + 999;
+	console.log(csvID)
 	filename = "data/mindboggled/Twins-2-1/tables/left_exploded_tables/" + csvID + ".0.csv"
-	
+	console.log("FILENAME IS", filename)
 	d3.csv(filename, function(error, csv) {
 		div_dom.empty();
 		var data = [];
@@ -87,13 +89,25 @@ function do_boxplot(divID, mesh) {
 		})).rangeRoundBands([0, width], 0.7, 0.3);
 
 		var xAxis = d3.svg.axis().scale(x).orient("bottom");
-		svg.selectAll(".box").data(data).enter().append("g").attr("transform", function(d) {
+		
+		svg.selectAll(".box")
+		    .data(data)
+		    .enter()
+		    .append("g")
+		    .attr("transform", function(d) {
 			return "translate(" + x(d[0]) + "," + margin.top + ")";
 		}).call(chart.width(x.rangeBand()));
 
-		svg.append("text").attr("x", (width / 2)).attr("y", 0 + (margin.top / 2)).attr("text-anchor", "middle").style("font-size", "18px").text("Shape distributions");
+		svg.append("text").attr("x", (width / 2)).attr("y", 0 + (margin.top / 2)).attr("text-anchor", "middle").style("font-size", "18px").text("Shape distributions").on("click", function(d){console.log(d)});
 		svg.append("g").attr("class", "x axis").attr("transform", "translate(0," + (height + margin.top + 10) + ")").call(xAxis).append("text").attr("x", (width / 2)).attr("y", 10).attr("dy", ".71em").style("text-anchor", "middle").style("font-size", "16px")
 		$("rect").css("fill", rgbColor)
+		
+		svg.selectAll(".box").on("click", function(d,i){
+    		console.log("clicked something")
+    		console.log(data[i/4])
+    		console.log(mesh)
+    		console.log(mesh.geometry)
+    		})
 	});
 
 	function iqr(k) {
