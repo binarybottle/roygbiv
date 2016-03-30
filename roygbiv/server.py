@@ -20,6 +20,8 @@ def make_server(web_dir=HTML_DIR, data_dir=DATA_DIR):
     def send_allspecific(dataset, atlas, surface, html_file):
         if html_file == '':
             html_file = 'index.html'
+        if not html_file.endswith(".html"): #anisha's hack because demo wasn't working
+            html_file = os.path.join(dataset,atlas, surface,html_file)
         return send_from_directory(web_dir, html_file)
 
     # Generic
