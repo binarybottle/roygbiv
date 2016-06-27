@@ -134,7 +134,11 @@ var Brain = function(kwargs) {
 		if (_this.data_url)
 			_this.data_url += '?' + (new Date())
 
+
 		if (_this.manifest_url === null)
+			return;
+
+        if (_this.label_mapper === null)
 			return;
 
 		function reset_mesh_props(data, textStatus, jqXHR, paint_colors) {
@@ -162,6 +166,7 @@ var Brain = function(kwargs) {
 			for (var ki in roi_keys) {
 				var key = roi_keys[ki];
 				var mesh_url = get_prop(data, "filename", key, null);
+				console.log(data)
 				var mesh_props = {
 					color: get_prop(data, "colors", key, [rnum(0.25, 1.), rnum(0.25, 1.), rnum(0.25, 1.)]),
 					name: get_prop(data, "names", key, key),
@@ -208,6 +213,7 @@ var Brain = function(kwargs) {
 				}
 			}
 		});
+		
 	};
 
 	// resizing function
