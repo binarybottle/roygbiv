@@ -217,6 +217,7 @@ var Brain = function(kwargs) {
 		this.camera.updateProjectionMatrix();
 
 		this.renderer.setSize( sz.width, sz.height );
+		this.renderer.setClearColor("ffffff", 1);
 
 		this.controls.handleResize();
 	}
