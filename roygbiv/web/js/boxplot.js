@@ -108,7 +108,7 @@ function do_boxplot(divID, mesh) {
     		          "FS thick": "freesurfer_thickness"
 		}
 		
-		svg.selectAll(".box").on("click", function(d,i){
+		/*svg.selectAll(".box").on("click", function(d,i){
     		key = key_mapper[data[i/4][0]] //anisha: I have no idea why I divide by 4. But this works
     		console.log(key)
     		var face_metrics = [] //compute the value for each face instead of each vertex
@@ -132,7 +132,7 @@ function do_boxplot(divID, mesh) {
     		})
     		mesh.geometry.colorsNeedUpdate = true
     		
-    		})
+    		})*/
 	});
 
 	function iqr(k) {
