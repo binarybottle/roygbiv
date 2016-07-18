@@ -1,7 +1,7 @@
 
 body {
 	font-family: Monospace;
-	background-color: #000;
+	background-color: #ffffff;
 	color: #fff;
 	margin: 0px;
 }
@@ -21,24 +21,24 @@ body {
 }
 
 .box text {
-	fill:#fff;
+	fill:black;
 }
 
 .box line,.box rect,.box circle {
 	fill:#4682b4;
-	stroke:#fff;
+	stroke:black;
 	stroke-width:1px;
 }
 
 .box .center {
 	stroke-dasharray:3,3;
-	fill:#fff;
-	stroke:#fff;
+	fill:black;
+	stroke:black;
 }
 
 .box .outlier {
 	fill:none;
-	stroke:#fff;
+	stroke:black;
 }
 
 .axis {
@@ -47,13 +47,13 @@ body {
 
 .axis path,.axis line {
 	fill:none;
-	stroke:#fff;
+	stroke:black;
 	shape-rendering:crispEdges;
 }
 
 .x.axis path {
 	fill:none;
-	stroke:#fff;
+	stroke:black;
 	shape-rendering:crispEdges;
 }
 
@@ -62,22 +62,24 @@ body {
 	left: 0px;
 	margin: auto;
 	text-align: center;
+	color: black;
 }
 
+
 #nav_label {
-	background-color:#000;
+	background-color:#ffffff;
 	opacity:0.5;
 	padding:10px;
 	text-align:left;
-	color:white;
+	color:black;
 }
 
 #nav-brain {
 	float: right;
-	width: 600px;
-	height: 400px;
+	width: 1600px;
+	height: 1400px;
 	margin: 15px;
-	background-color: #333;
+	background-color: #ffffff;
 	padding: 5px;
 	border-radius: 25px;
 	opacity: 2.25;
@@ -90,7 +92,7 @@ body {
 	height: 200px;
 	padding: 10px;
 	margin: 30px 50px 70px 50px;
-	background-color: #333;
+	background-color: #ffffff;
 	border-radius: 12px;
 }
 

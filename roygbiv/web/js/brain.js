@@ -134,7 +134,11 @@ var Brain = function(kwargs) {
 		if (_this.data_url)
 			_this.data_url += '?' + (new Date())
 
+
 		if (_this.manifest_url === null)
+			return;
+
+        if (_this.label_mapper === null)
 			return;
 
 		function reset_mesh_props(data, textStatus, jqXHR, paint_colors) {
@@ -162,9 +166,10 @@ var Brain = function(kwargs) {
 			for (var ki in roi_keys) {
 				var key = roi_keys[ki];
 				var mesh_url = get_prop(data, "filename", key, null);
+				//console.log(data)
 				var mesh_props = {
 					color: get_prop(data, "colors", key, [rnum(0.25, 1.), rnum(0.25, 1.), rnum(0.25, 1.)]),
-					name: get_prop(data, "names", key, key),
+					name: get_prop(data, "name", key, key),
 					value: get_prop(data, "values", key, null),
 					roi_key: key
 				}
@@ -208,6 +213,7 @@ var Brain = function(kwargs) {
 				}
 			}
 		});
+		
 	};
 
 	// resizing function
@@ -217,6 +223,7 @@ var Brain = function(kwargs) {
 		this.camera.updateProjectionMatrix();
 
 		this.renderer.setSize( sz.width, sz.height );
+		this.renderer.setClearColor("ffffff", 1);
 
 		this.controls.handleResize();
 	}
@@ -290,7 +297,7 @@ var Brain = function(kwargs) {
 				mesh.rotation.y = Math.PI * 1.01;
 				mesh.rotation.x = Math.PI * 0.5;
 				mesh.rotation.z = Math.PI * 1.5 * (url.indexOf('rh_') == -1 ? 1 : -1);
-
+                //console.log("mesh props is", mesh_props)
 				var mesh_name = mesh_props.name;
 				if (mesh_name) {
 					mesh.name = mesh_name;

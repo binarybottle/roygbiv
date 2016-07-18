@@ -15,7 +15,6 @@ import nibabel as nib
 HTML_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), 'web'))
 DATA_DIR = os.environ.get('ROYGBIV_PATH', os.path.join(HTML_DIR, 'data'))
 
-
 def downsample_vtk(vtk_file, sample_rate):
     """Sample rate: number between 0 and 1."""
     from mindboggle.mio.vtks import read_vtk, write_vtk
